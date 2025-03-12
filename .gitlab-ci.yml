@@ -20,7 +20,33 @@ stages:
 - incremental rollout 100%
 - performance
 - cleanup
+- github
+
 sast:
   stage: test
 include:
 - template: Auto-DevOps.gitlab-ci.yml
+
+deploy:github:
+  stage: github
+  image: debian:12
+  before_script:
+    - apt-get update && apt-get install git ssh -y
+    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client git -y )'
+    - mkdir -p  ~/.ssh
+    - |
+      echo ${GITHUB_SSH_PRIVATE} | base64 -d > ~/.ssh/id_rsa
+      echo ${GITHUB_SSH_PUBLIC} | base64 -d > ~/.ssh/id_rsa.pub
+      chmod 600 -R ~/.ssh
+      eval $(ssh-agent -s)
+      ssh-add ~/.ssh/id_rsa
+      ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
+  script:
+    - |
+      if [ "$(git remote show | grep publicGithub)" == "" ] ; then
+        git remote add publicGithub git@github.com:Times-Z/SmartClimate.git
+      fi
+      git push -f -u publicGithub HEAD:main
+  only:
+    - main
+  when: manual
