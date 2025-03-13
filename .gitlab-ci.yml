@@ -29,7 +29,7 @@ build:esp32c6:
 #     - source $IDF_PATH/export.sh
 #     - idf.py test
 #   needs:
-#     build_firmware:
+#     - job: build:esp32c6
 #       artifacts: true
 
 deploy:github:
@@ -53,7 +53,7 @@ deploy:github:
       fi
       git push -f -u publicGithub HEAD:main
   needs:
-    build:esp32c6:
+    - job: build:esp32c6
       artifacts: false
   only:
     - main
