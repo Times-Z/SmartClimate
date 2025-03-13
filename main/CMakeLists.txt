@@ -1,5 +1,3 @@
-set(IDF_TARGET "esp32c6")
-
 idf_component_register(
                          SRCS "main.c" 
                               "LCD_Driver/Vernon_ST7789T/Vernon_ST7789T.c" 
