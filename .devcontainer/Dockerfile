@@ -10,7 +10,7 @@ RUN set -xe; \
     apt-get update -y \
     && apt-get install udev neovim clang-tidy cppcheck -y \
     && echo "source /opt/esp/idf/export.sh > /dev/null 2>&1" >> /home/${USER}/.bashrc \
-    && git config --global --add safe.directory /workspaces
+    && git config --global --add safe.directory /
 
 USER ${USER}
 

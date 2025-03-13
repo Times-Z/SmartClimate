@@ -15,7 +15,7 @@
     },
     "C_Cpp.errorSquiggles": "enabled",
     "C_Cpp.clang_format_fallbackStyle": "Google",
-    "C_Cpp.clang_format_style": "{ BasedOnStyle: Google, IndentWidth: 4, ColumnLimit: 120 }",
+    "C_Cpp.clang_format_style": "{ BasedOnStyle: Google, IndentWidth: 4, ColumnLimit: 120, IncludeBlocks: Preserve, SortIncludes: false }",
     "C_Cpp.intelliSenseEngine": "default",
     "C_Cpp.default.compilerPath": "/usr/bin/gcc",
     "C_Cpp.default.intelliSenseMode": "gcc-x64",
