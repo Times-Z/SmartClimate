@@ -17,5 +17,9 @@
 			]
 		}
 	},
-	"runArgs": ["--privileged"]
+	"runArgs": [
+		"--privileged",
+		"-v", "${env:HOME}/.ssh:/root/.ssh:ro",
+		"-v", "${env:HOME}/.gnupg:/root/.gnupg:ro"
+	]
 }
