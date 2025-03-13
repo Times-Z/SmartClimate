@@ -23,8 +23,12 @@
 		}
 	},
 	"runArgs": [
-		"--privileged",
-		"-v", "${env:HOME}/.ssh:/root/.ssh:ro",
-		"-v", "${env:HOME}/.gnupg:/root/.gnupg:ro"
+		"--name=smartclimate-dev",
+		"--hostname=smartclimate-dev",
+		"-v", "${env:HOME}/.ssh:/home/ubuntu/.ssh:ro",
+		"-v", "${env:HOME}/.gnupg:/home/ubuntu/.gnupg:ro",
+		"-v", "/run/udev:/run/udev",
+		"-v", "/etc/localtime:/etc/localtime:ro",
+		"--device=/dev/ttyACM0"
 	]
 }

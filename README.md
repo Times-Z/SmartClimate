@@ -10,7 +10,7 @@ Before setting up SmartClimate, ensure you have the following installed:
 - **VS Code** with the following extensions:
   - [C/C++](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools)
   - [ESP-IDF (latest version)](https://marketplace.visualstudio.com/items?itemName=espressif.esp-idf-extension)
-- *Optional* **Docker** for running the devcontainer to avoid installing esp-idf on host
+- *Optional* **Docker/docker-compose** for running the devcontainer to avoid installing esp-idf on host
 
 ### Hardware Requirements
 - **ESP32-C6** microcontroller
@@ -18,7 +18,7 @@ Before setting up SmartClimate, ensure you have the following installed:
 - Environmental sensors (optional, e.g., DHT22, BMP280, etc.)
 - Power supply (USB-C or battery)
 
-### Tester hardware
+### Tested hardware
 [Aliexpress ESP32-C6 + TFT 1.47" screen](https://fr.aliexpress.com/item/1005008137447784.html?spm=a2g0o.order_list.order_list_main.16.35e25e5bMBmZyY&gatewayAdapt=glo2fra)
 
 ### Partitions
@@ -35,9 +35,20 @@ Before setting up SmartClimate, ensure you have the following installed:
    git clone https://github.com/your-repo/SmartClimate.git
    cd SmartClimate
    ```
+
+### If you use devcontainer :
+2. **Add udev rule :**
+
+   replace YOURUSER with your user name
+   ```sh
+   SUBSYSTEM=="tty", ATTRS{idVendor}=="303a", ATTRS{idProduct}=="1001", OWNER="YOURUSER", GROUP="dialout", MODE="0666"
+   ```
+
+### If your don't use devcontainer
 2. **Configure ESP-IDF:**
    - Open VS Code and install the ESP-IDF extension.
    - Follow the setup instructions to configure the ESP32-C6 environment.
+
 3. **Build and flash the firmware:**
    ```sh
    idf.py build
