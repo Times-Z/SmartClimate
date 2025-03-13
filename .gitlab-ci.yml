@@ -11,7 +11,15 @@ build:esp32c6:
     IDF_TOOLS_PATH: "/opt/esp"
   script:
     - source $IDF_PATH/export.sh
+    - idf.py reconfigure
     - idf.py build
+  cache:
+    key: esp-idf-cache
+    paths:
+      - ~/.espressif
+      - build/
+      - .idf_cache/
+    policy: pull-push
   artifacts:
     paths:
       - build/*.bin
