@@ -31,5 +31,8 @@
 		"-v", "/etc/localtime:/etc/localtime:ro",
 		"-v", "/dev:/dev",
 		"--device-cgroup-rule=c 166:* rmw"
-	]
+	],
+	"remoteEnv": {
+		"CMAKE_GENERATOR": "Ninja"
+	}
 }
