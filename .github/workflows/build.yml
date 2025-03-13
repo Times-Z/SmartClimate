@@ -17,6 +17,9 @@ jobs:
     env:
       IDF_PATH: "/opt/esp/idf"
       IDF_TOOLS_PATH: "/opt/esp"
+    defaults:
+      run:
+        shell: bash
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
