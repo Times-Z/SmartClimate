@@ -1,5 +1,5 @@
 # Esp model target
-IDF_TARGET="esp32c6"
+IDF_TARGET=esp32c6
 
 # LVGL Configuration
 CONFIG_LV_MEM_SIZE_KILOBYTES=48
