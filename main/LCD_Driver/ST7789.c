@@ -4,22 +4,21 @@ static const char *TAG_LCD = "WS_LCD";
 
 esp_lcd_panel_handle_t panel_handle = NULL;
 
-void LCD_Init(void)
-{
-    // ESP_LOGI(TAG_LCD, "Initialize SPI bus");                                            
-    // spi_bus_config_t buscfg = {                                                         
-    //     .sclk_io_num = EXAMPLE_PIN_NUM_SCLK,                                            
-    //     .mosi_io_num = EXAMPLE_PIN_NUM_MOSI,                                            
-    //     .miso_io_num = EXAMPLE_PIN_NUM_MISO,                                            
-    //     .quadwp_io_num = -1,                                                            
-    //     .quadhd_io_num = -1,                                                            
-    //     .max_transfer_sz = EXAMPLE_LCD_H_RES * EXAMPLE_LCD_V_RES * sizeof(uint16_t),    
+void LCD_Init(void) {
+    // ESP_LOGI(TAG_LCD, "Initialize SPI bus");
+    // spi_bus_config_t buscfg = {
+    //     .sclk_io_num = EXAMPLE_PIN_NUM_SCLK,
+    //     .mosi_io_num = EXAMPLE_PIN_NUM_MOSI,
+    //     .miso_io_num = EXAMPLE_PIN_NUM_MISO,
+    //     .quadwp_io_num = -1,
+    //     .quadhd_io_num = -1,
+    //     .max_transfer_sz = EXAMPLE_LCD_H_RES * EXAMPLE_LCD_V_RES * sizeof(uint16_t),
     // };
-    // ESP_ERROR_CHECK(spi_bus_initialize(LCD_HOST, &buscfg, SPI_DMA_CH_AUTO));            
+    // ESP_ERROR_CHECK(spi_bus_initialize(LCD_HOST, &buscfg, SPI_DMA_CH_AUTO));
 
-    ESP_LOGI(TAG_LCD, "Install panel IO");                                              
-    esp_lcd_panel_io_handle_t io_handle = NULL;                                         
-    esp_lcd_panel_io_spi_config_t io_config = {                                             
+    ESP_LOGI(TAG_LCD, "Install panel IO");
+    esp_lcd_panel_io_handle_t io_handle = NULL;
+    esp_lcd_panel_io_spi_config_t io_config = {
         .dc_gpio_num = EXAMPLE_PIN_NUM_LCD_DC,
         .cs_gpio_num = EXAMPLE_PIN_NUM_LCD_CS,
         .pclk_hz = EXAMPLE_LCD_PIXEL_CLOCK_HZ,
@@ -41,7 +40,6 @@ void LCD_Init(void)
     ESP_LOGI(TAG_LCD, "Install ST7789T panel driver");
     ESP_ERROR_CHECK(esp_lcd_new_panel_st7789t(io_handle, &panel_config, &panel_handle));
 
-
     ESP_ERROR_CHECK(esp_lcd_panel_reset(panel_handle));
     ESP_ERROR_CHECK(esp_lcd_panel_init(panel_handle));
     ESP_ERROR_CHECK(esp_lcd_panel_mirror(panel_handle, true, false));
@@ -51,47 +49,39 @@ void LCD_Init(void)
 
     ESP_LOGI(TAG_LCD, "Turn on LCD backlight");
     // gpio_set_level(EXAMPLE_PIN_NUM_BK_LIGHT, EXAMPLE_LCD_BK_LIGHT_ON_LEVEL);
-    
-    BK_Init();                                                                                          // Initialize the backlight
-    BK_Light(75);
 
+    BK_Init();  // Initialize the backlight
+    BK_Light(75);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Backlight program
 static ledc_channel_config_t ledc_channel;
-void BK_Init(void)
-{
+void BK_Init(void) {
     ESP_LOGI(TAG_LCD, "Turn off LCD backlight");
-    gpio_config_t bk_gpio_config = {
-        .mode = GPIO_MODE_OUTPUT,
-        .pin_bit_mask = 1ULL << EXAMPLE_PIN_NUM_BK_LIGHT
-    };
+    gpio_config_t bk_gpio_config = {.mode = GPIO_MODE_OUTPUT, .pin_bit_mask = 1ULL << EXAMPLE_PIN_NUM_BK_LIGHT};
     ESP_ERROR_CHECK(gpio_config(&bk_gpio_config));
-    
+
     // 配置LEDC
-    ledc_timer_config_t ledc_timer = {
-        .duty_resolution = LEDC_TIMER_13_BIT,
-        .freq_hz = 5000,
-        .speed_mode = LEDC_LS_MODE,
-        .timer_num = LEDC_HS_TIMER,
-        .clk_cfg = LEDC_AUTO_CLK
-    };
+    ledc_timer_config_t ledc_timer = {.duty_resolution = LEDC_TIMER_13_BIT,
+                                      .freq_hz = 5000,
+                                      .speed_mode = LEDC_LS_MODE,
+                                      .timer_num = LEDC_HS_TIMER,
+                                      .clk_cfg = LEDC_AUTO_CLK};
     ledc_timer_config(&ledc_timer);
 
-    ledc_channel.channel    = LEDC_HS_CH0_CHANNEL;
-    ledc_channel.duty       = 0;
-    ledc_channel.gpio_num   = EXAMPLE_PIN_NUM_BK_LIGHT;
+    ledc_channel.channel = LEDC_HS_CH0_CHANNEL;
+    ledc_channel.duty = 0;
+    ledc_channel.gpio_num = EXAMPLE_PIN_NUM_BK_LIGHT;
     ledc_channel.speed_mode = LEDC_LS_MODE;
-    ledc_channel.timer_sel  = LEDC_HS_TIMER;
+    ledc_channel.timer_sel = LEDC_HS_TIMER;
     ledc_channel_config(&ledc_channel);
     ledc_fade_func_install(0);
 }
-void BK_Light(uint8_t Light)
-{   
-    if(Light > 100) Light = 100;
-    uint16_t Duty = LEDC_MAX_Duty-(81*(100-Light));
-    if(Light == 0) Duty = 0;
+void BK_Light(uint8_t Light) {
+    if (Light > 100) Light = 100;
+    uint16_t Duty = LEDC_MAX_Duty - (81 * (100 - Light));
+    if (Light == 0) Duty = 0;
     // 设置PWM占空比
     ledc_set_duty(ledc_channel.speed_mode, ledc_channel.channel, Duty);
     ledc_update_duty(ledc_channel.speed_mode, ledc_channel.channel);

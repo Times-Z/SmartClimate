@@ -22,11 +22,11 @@ typedef struct {
         lcd_color_rgb_endian_t color_space; /*!< @deprecated Set RGB color space, please use rgb_endian instead */
         lcd_color_rgb_endian_t rgb_endian;  /*!< Set RGB data endian: RGB or BGR */
     };
-    unsigned int bits_per_pixel;       /*!< Color depth, in bpp */
+    unsigned int bits_per_pixel; /*!< Color depth, in bpp */
     struct {
-        unsigned int reset_active_high: 1; /*!< Setting this if the panel reset is high level active */
-    } flags;                               /*!< LCD panel config flags */
-    void *vendor_config; /*!< vendor specific configuration, optional, left as NULL if not used */
+        unsigned int reset_active_high : 1; /*!< Setting this if the panel reset is high level active */
+    } flags;                                /*!< LCD panel config flags */
+    void *vendor_config;                    /*!< vendor specific configuration, optional, left as NULL if not used */
 } esp_lcd_panel_dev_st7789t_config_t;
 
 /**
@@ -40,7 +40,9 @@ typedef struct {
  *          - ESP_ERR_NO_MEM        if out of memory
  *          - ESP_OK                on success
  */
-esp_err_t esp_lcd_new_panel_st7789t(const esp_lcd_panel_io_handle_t io, const esp_lcd_panel_dev_st7789t_config_t *panel_dev_config, esp_lcd_panel_handle_t *ret_panel);
+esp_err_t esp_lcd_new_panel_st7789t(const esp_lcd_panel_io_handle_t io,
+                                    const esp_lcd_panel_dev_st7789t_config_t *panel_dev_config,
+                                    esp_lcd_panel_handle_t *ret_panel);
 
 #ifdef __cplusplus
 }

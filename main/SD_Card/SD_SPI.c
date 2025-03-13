@@ -1,6 +1,6 @@
 #include "SD_SPI.h"
 
-#define EXAMPLE_MAX_CHAR_SIZE    64
+#define EXAMPLE_MAX_CHAR_SIZE 64
 #define MOUNT_POINT "/sdcard"
 
 static const char *SD_TAG = "SD";
@@ -8,8 +8,7 @@ static const char *SD_TAG = "SD";
 uint32_t Flash_Size = 0;
 uint32_t SDCard_Size = 0;
 
-esp_err_t s_example_write_file(const char *path, char *data)
-{
+esp_err_t s_example_write_file(const char *path, char *data) {
     ESP_LOGI(SD_TAG, "Opening file %s", path);
     FILE *f = fopen(path, "w");
     if (f == NULL) {
@@ -23,8 +22,7 @@ esp_err_t s_example_write_file(const char *path, char *data)
     return ESP_OK;
 }
 
-esp_err_t s_example_read_file(const char *path)
-{
+esp_err_t s_example_read_file(const char *path) {
     ESP_LOGI(SD_TAG, "Reading file %s", path);
     FILE *f = fopen(path, "r");
     if (f == NULL) {
@@ -45,18 +43,14 @@ esp_err_t s_example_read_file(const char *path)
     return ESP_OK;
 }
 
-
-bool SD_Init(void)
-{
+bool SD_Init(void) {
     esp_err_t ret;
 
     // Options for mounting the filesystem.
-    // If format_if_mount_failed is set to true, SD card will be partitioned and formatted in case when mounting fails.  false true
+    // If format_if_mount_failed is set to true, SD card will be partitioned and formatted in case when mounting fails.
+    // false true
     esp_vfs_fat_sdmmc_mount_config_t mount_config = {
-        .format_if_mount_failed = true,
-        .max_files = 5,
-        .allocation_unit_size = 16 * 1024
-    };
+        .format_if_mount_failed = true, .max_files = 5, .allocation_unit_size = 16 * 1024};
     sdmmc_card_t *card;
     const char mount_point[] = MOUNT_POINT;
     ESP_LOGI(SD_TAG, "Initializing SD card");
@@ -70,7 +64,7 @@ bool SD_Init(void)
     // For setting a specific frequency, use host.max_freq_khz (range 400kHz - 20MHz for SDSPI)
     // Example: for fixed frequency of 10MHz, use host.max_freq_khz = 10000;
     sdmmc_host_t host = SDSPI_HOST_DEFAULT();
-    
+
     spi_bus_config_t bus_cfg = {
         .mosi_io_num = PIN_NUM_MOSI,
         .miso_io_num = PIN_NUM_MISO,
@@ -96,11 +90,15 @@ bool SD_Init(void)
 
     if (ret != ESP_OK) {
         if (ret == ESP_FAIL) {
-            ESP_LOGE(SD_TAG, "Failed to mount filesystem. "
-                     "If you want the card to be formatted, set the CONFIG_EXAMPLE_FORMAT_IF_MOUNT_FAILED menuconfig option.");
+            ESP_LOGE(SD_TAG,
+                     "Failed to mount filesystem. "
+                     "If you want the card to be formatted, set the CONFIG_EXAMPLE_FORMAT_IF_MOUNT_FAILED menuconfig "
+                     "option.");
         } else {
-            ESP_LOGE(SD_TAG, "Failed to initialize the card (%s). "
-                     "Make sure SD card lines have pull-up resistors in place.", esp_err_to_name(ret));
+            ESP_LOGE(SD_TAG,
+                     "Failed to initialize the card (%s). "
+                     "Make sure SD card lines have pull-up resistors in place.",
+                     esp_err_to_name(ret));
         }
         return false;
     }
@@ -108,18 +106,15 @@ bool SD_Init(void)
 
     // Card has been initialized, print its properties
     sdmmc_card_print_info(stdout, card);
-    SDCard_Size = ((uint64_t) card->csd.capacity) * card->csd.sector_size / (1024 * 1024);
+    SDCard_Size = ((uint64_t)card->csd.capacity) * card->csd.sector_size / (1024 * 1024);
 
     return true;
 }
-void Flash_Searching(void)
-{
-    if(esp_flash_get_physical_size(NULL, &Flash_Size) == ESP_OK)
-    {
+void Flash_Searching(void) {
+    if (esp_flash_get_physical_size(NULL, &Flash_Size) == ESP_OK) {
         Flash_Size = Flash_Size / (uint32_t)(1024 * 1024);
         printf("Flash size: %ld MB\n", Flash_Size);
-    }
-    else{
+    } else {
         printf("Get flash size failed\n");
     }
 }
