@@ -2,22 +2,41 @@
 #include "SD_SPI.h"
 #include "RGB.h"
 #include "Wireless.h"
+#include "esp_log.h"
+#include "esp_system.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 
-void app_main(void)
-{
-    Wireless_Init();
+#define TAG "MAIN"
+
+void initialize_components(void) {
+    ESP_LOGI(TAG, "Initializing system components...");
+
+    if (Wireless_Init() != true) {
+        ESP_LOGE(TAG, "Wireless initialization failed. Restarting...");
+        esp_restart();
+    }
+
     Flash_Searching();
+
+    if (SD_Init() != true) {
+        ESP_LOGE(TAG, "SD Card initialization failed. Running without SD support.");
+    }
+
     RGB_Init();
     RGB_Example();
-    SD_Init();
+    
     LCD_Init();
-    BK_Light(50);
+    BK_Light(20);
     LVGL_Init();
+}
+
+void app_main(void) {
+    ESP_LOGI(TAG, "Starting SmartClimate...");
+    initialize_components();
 
     while (1) {
-        // raise the task priority of LVGL and/or reduce the handler period can improve the performance
         vTaskDelay(pdMS_TO_TICKS(10));
-        // The task running lv_timer_handler should have lower priority than that running `lv_tick_inc`
         lv_timer_handler();
     }
 }

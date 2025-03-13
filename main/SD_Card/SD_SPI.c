@@ -46,14 +46,14 @@ esp_err_t s_example_read_file(const char *path)
 }
 
 
-void SD_Init(void)
+bool SD_Init(void)
 {
     esp_err_t ret;
 
     // Options for mounting the filesystem.
     // If format_if_mount_failed is set to true, SD card will be partitioned and formatted in case when mounting fails.  false true
     esp_vfs_fat_sdmmc_mount_config_t mount_config = {
-        .format_if_mount_failed = true,          
+        .format_if_mount_failed = true,
         .max_files = 5,
         .allocation_unit_size = 16 * 1024
     };
@@ -82,7 +82,7 @@ void SD_Init(void)
     ret = spi_bus_initialize(host.slot, &bus_cfg, SDSPI_DEFAULT_DMA);
     if (ret != ESP_OK) {
         ESP_LOGE(SD_TAG, "Failed to initialize SPI bus.");
-        return;
+        return false;
     }
 
     // This initializes the slot without card detect (CD) and write protect (WP) signals.
@@ -102,13 +102,15 @@ void SD_Init(void)
             ESP_LOGE(SD_TAG, "Failed to initialize the card (%s). "
                      "Make sure SD card lines have pull-up resistors in place.", esp_err_to_name(ret));
         }
-        return;
+        return false;
     }
     ESP_LOGI(SD_TAG, "Filesystem mounted");
 
     // Card has been initialized, print its properties
     sdmmc_card_print_info(stdout, card);
     SDCard_Size = ((uint64_t) card->csd.capacity) * card->csd.sector_size / (1024 * 1024);
+
+    return true;
 }
 void Flash_Searching(void)
 {

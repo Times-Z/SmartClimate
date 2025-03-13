@@ -6,7 +6,8 @@ bool Scan_finish = 0;
 
 bool WiFi_Scan_Finish = 0;
 bool BLE_Scan_Finish = 0;
-void Wireless_Init(void)
+
+bool Wireless_Init(void)
 {
     // Initialize NVS.
     esp_err_t ret = nvs_flash_init();
@@ -33,6 +34,8 @@ void Wireless_Init(void)
         2, 
         NULL, 
         0);
+
+    return true;
 }
 
 void WIFI_Init(void *arg)
