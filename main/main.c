@@ -1,6 +1,6 @@
-#include "ST7789.h"
-#include "SD_SPI.h"
 #include "RGB.h"
+#include "SD_SPI.h"
+#include "ST7789.h"
 #include "Wireless.h"
 #include "esp_log.h"
 #include "esp_system.h"
@@ -25,7 +25,7 @@ void initialize_components(void) {
 
     RGB_Init();
     RGB_Example();
-    
+
     LCD_Init();
     BK_Light(20);
     LVGL_Init();

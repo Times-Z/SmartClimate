@@ -12,5 +12,24 @@
         "*plays.yml": "ansible",
         "*init.yml": "yaml",
         "*.h": "c",
-    }
+    },
+    "C_Cpp.errorSquiggles": "enabled",
+    "C_Cpp.clang_format_fallbackStyle": "Google",
+    "C_Cpp.clang_format_style": "{ BasedOnStyle: Google, IndentWidth: 4, ColumnLimit: 120 }",
+    "C_Cpp.intelliSenseEngine": "default",
+    "C_Cpp.default.compilerPath": "/usr/bin/gcc",
+    "C_Cpp.default.intelliSenseMode": "gcc-x64",
+    "C_Cpp.default.cppStandard": "c++17",
+    "C_Cpp.default.cStandard": "gnu17",
+    "C_Cpp.vcpkg.enabled": false,
+    "C_Cpp.clang_tidy.enabled": true,
+    "C_Cpp.clang_tidy.path": "/usr/bin/clang-tidy",
+    "C_Cpp.clang_tidy.checks": [
+        "*", 
+        "-clang-analyzer-*", 
+        "-modernize-use-trailing-return-type"
+    ],
+    "C_Cpp.cppcheck.enabled": true,
+    "C_Cpp.cppcheck.path": "/usr/bin/cppcheck",
+    "C_Cpp.cppcheck.extraArgs": "--enable=all --inconclusive --std=c99"
 }

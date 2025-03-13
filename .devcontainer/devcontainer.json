@@ -29,6 +29,7 @@
 		"-v", "${env:HOME}/.gnupg:/home/ubuntu/.gnupg:ro",
 		"-v", "/run/udev:/run/udev",
 		"-v", "/etc/localtime:/etc/localtime:ro",
-		"--device=/dev/ttyACM0"
+		"-v", "/dev:/dev",
+		"--device-cgroup-rule=c 166:* rmw"
 	]
 }
