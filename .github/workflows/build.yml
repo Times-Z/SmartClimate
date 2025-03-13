@@ -40,6 +40,7 @@ jobs:
 
       - name: Build firmware
         run: |
+          source $IDF_PATH/export.sh
           idf.py build
 
       - name: Upload artifacts
