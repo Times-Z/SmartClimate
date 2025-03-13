@@ -28,8 +28,8 @@ build:esp32c6:
 #   script:
 #     - source $IDF_PATH/export.sh
 #     - idf.py test
-#   dependencies:
-#     - build_firmware:
+#   needs:
+#     build_firmware:
 #       artifacts: true
 
 deploy:github:
@@ -52,8 +52,8 @@ deploy:github:
         git remote add publicGithub git@github.com:Times-Z/SmartClimate.git
       fi
       git push -f -u publicGithub HEAD:main
-  dependencies:
-    - build:esp32c6:
+  needs:
+    build:esp32c6:
       artifacts: false
   only:
     - main
