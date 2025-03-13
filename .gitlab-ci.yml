@@ -2,21 +2,38 @@ stages:
   - build
   - test
   - deploy
-  - review
-  - dast
-  - staging
-  - canary
-  - production
-  - incremental rollout 10%
-  - incremental rollout 25%
-  - incremental rollout 50%
-  - incremental rollout 100%
-  - performance
-  - cleanup
-  - github
+
+build:esp32c6:
+  stage: build
+  image: espressif/idf:release-v5.4
+  variables:
+    IDF_PATH: "/opt/esp/idf"
+    IDF_TOOLS_PATH: "/opt/esp"
+  script:
+    - source $IDF_PATH/export.sh
+    - idf.py build
+  artifacts:
+    paths:
+      - build/*.bin
+      - build/*.elf
+      - build/*.map
+    expire_in: 1 days
+
+# test:esp32c6:
+#   stage: test
+#   image: espressif/idf:release-v5.4
+#   variables:
+#     IDF_PATH: "/opt/esp/idf"
+#     IDF_TOOLS_PATH: "/opt/esp"
+#   script:
+#     - source $IDF_PATH/export.sh
+#     - idf.py test
+#   dependencies:
+#     - build_firmware:
+#       artifacts: true
 
 deploy:github:
-  stage: github
+  stage: deploy
   image: debian:12
   before_script:
     - apt-get update && apt-get install git ssh -y
@@ -35,6 +52,9 @@ deploy:github:
         git remote add publicGithub git@github.com:Times-Z/SmartClimate.git
       fi
       git push -f -u publicGithub HEAD:main
+  dependencies:
+    - build:esp32c6:
+      artifacts: false
   only:
     - main
   when: always
