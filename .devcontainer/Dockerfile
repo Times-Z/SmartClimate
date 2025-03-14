@@ -8,7 +8,12 @@ ARG USER=ubuntu
 
 RUN set -xe; \
     apt-get update -y \
-    && apt-get install udev neovim clang-tidy cppcheck -y \
+    && apt-get install -y \
+        build-essential \
+        clang-tidy \
+        cppcheck \
+        neovim \
+        udev \
     && echo "source /opt/esp/idf/export.sh > /dev/null 2>&1" >> /home/${USER}/.bashrc \
     && git config --global --add safe.directory /
 

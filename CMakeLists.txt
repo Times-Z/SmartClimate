@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
+
 set(IDF_TARGET "esp32c6")
 
 execute_process(
@@ -16,4 +17,5 @@ endif()
 set(PROJECT_VER ${GIT_VERSION})
 
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
-project(SmartClimate)
+
+project("SmartClimate" C)
