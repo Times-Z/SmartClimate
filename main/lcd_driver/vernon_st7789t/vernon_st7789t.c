@@ -23,7 +23,7 @@
 #include "esp_log.h"
 #include "esp_check.h"
 
-#include "Vernon_ST7789T/Vernon_ST7789T.h"
+#include "vernon_st7789t/vernon_st7789t.h"
 
 static const char *TAG = "lcd_panel.st7789t";
 

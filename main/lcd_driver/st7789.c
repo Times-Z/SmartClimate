@@ -1,10 +1,10 @@
-#include "ST7789.h"
+#include "st7789.h"
 
 static const char *TAG_LCD = "WS_LCD";
 
 esp_lcd_panel_handle_t panel_handle = NULL;
 
-void LCD_Init(void) {
+void lcd_init(void) {
     // ESP_LOGI(TAG_LCD, "Initialize SPI bus");
     // spi_bus_config_t buscfg = {
     //     .sclk_io_num = EXAMPLE_PIN_NUM_SCLK,
@@ -50,14 +50,14 @@ void LCD_Init(void) {
     ESP_LOGI(TAG_LCD, "Turn on LCD backlight");
     // gpio_set_level(EXAMPLE_PIN_NUM_BK_LIGHT, EXAMPLE_LCD_BK_LIGHT_ON_LEVEL);
 
-    BK_Init();  // Initialize the backlight
-    BK_Light(75);
+    backlight_init();  // Initialize the backlight
+    backlight_brightness(75);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Backlight program
 static ledc_channel_config_t ledc_channel;
-void BK_Init(void) {
+void backlight_init(void) {
     ESP_LOGI(TAG_LCD, "Turn off LCD backlight");
     gpio_config_t bk_gpio_config = {.mode = GPIO_MODE_OUTPUT, .pin_bit_mask = 1ULL << EXAMPLE_PIN_NUM_BK_LIGHT};
     ESP_ERROR_CHECK(gpio_config(&bk_gpio_config));
@@ -78,7 +78,7 @@ void BK_Init(void) {
     ledc_channel_config(&ledc_channel);
     ledc_fade_func_install(0);
 }
-void BK_Light(uint8_t Light) {
+void backlight_brightness(uint8_t Light) {
     if (Light > 100) Light = 100;
     uint16_t Duty = LEDC_MAX_Duty - (81 * (100 - Light));
     if (Light == 0) Duty = 0;

@@ -1,18 +1,16 @@
-idf_component_register(
-     SRCS "main.c"
-          "LCD_Driver/Vernon_ST7789T/Vernon_ST7789T.c"
-          "LCD_Driver/ST7789.c"
-          "LVGL_Driver/LVGL_Driver.c"
-          "SD_Card/SD_SPI.c"
-          "RGB/RGB.c"
-          "Wireless/Wireless.c"
+# Recherche automatiquement tous les fichiers .c
+file(GLOB_RECURSE SOURCES "*.c")
 
-     INCLUDE_DIRS
-          "./LCD_Driver/Vernon_ST7789T"
-          "./LCD_Driver"
-          "./LVGL_Driver"
-          "./SD_Card"
-          "./RGB" 
-          "./Wireless"
-          "."
+# Inclut automatiquement tous les dossiers qui contiennent des .h
+file(GLOB_RECURSE INCLUDE_DIRS_LIST "*.h")
+set(INCLUDE_DIRS "")
+foreach(header ${INCLUDE_DIRS_LIST})
+    get_filename_component(dir ${header} DIRECTORY)
+    list(APPEND INCLUDE_DIRS ${dir})
+endforeach()
+list(REMOVE_DUPLICATES INCLUDE_DIRS)
+
+idf_component_register(
+    SRCS ${SOURCES}
+    INCLUDE_DIRS ${INCLUDE_DIRS}
 )

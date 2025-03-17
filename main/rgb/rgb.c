@@ -1,4 +1,4 @@
-#include "RGB.h"
+#include "rgb.h"
 
 static uint8_t RGB_Data[192][3] = {
     {64, 1, 0},  {63, 2, 0},  {62, 3, 0},  {61, 4, 0},  {60, 5, 0},  {59, 6, 0},  {58, 7, 0},  {57, 8, 0},
@@ -30,7 +30,7 @@ static uint8_t RGB_Data[192][3] = {
 
 static led_strip_handle_t led_strip;
 
-void RGB_Init(void) {
+void rgb_init(void) {
     /* LED strip initialization with the GPIO and pixels number*/
     led_strip_config_t strip_config = {
         .strip_gpio_num = BLINK_GPIO,
@@ -45,23 +45,23 @@ void RGB_Init(void) {
     /* Set all LED off to clear all pixels */
     led_strip_clear(led_strip);
 }
-void Set_RGB(uint8_t red_val, uint8_t green_val, uint8_t blue_val) {
+void set_rgb(uint8_t red_val, uint8_t green_val, uint8_t blue_val) {
     /* Set the LED pixel using RGB from 0 (0%) to 255 (100%) for each color */
     led_strip_set_pixel(led_strip, 0, red_val, green_val, blue_val);
     /* Refresh the strip to send data */
     led_strip_refresh(led_strip);
 }
 
-void _RGB_Example(void *arg) {
+void _rgb_example(void *arg) {
     static uint8_t i = 0;
     while (1) {
-        Set_RGB(RGB_Data[i][0] * 3, RGB_Data[i][1] * 3, RGB_Data[i][2] * 3);
+        set_rgb(RGB_Data[i][0] * 3, RGB_Data[i][1] * 3, RGB_Data[i][2] * 3);
         i++;
         if (i >= 192) i = 0;
         vTaskDelay(20 / portTICK_PERIOD_MS);
     }
 }
-void RGB_Example(void) {
+void rgb_example(void) {
     // RGB
-    xTaskCreatePinnedToCore(_RGB_Example, "RGB Demo", 4096, NULL, 4, NULL, 0);
+    xTaskCreatePinnedToCore(_rgb_example, "RGB Demo", 4096, NULL, 4, NULL, 0);
 }

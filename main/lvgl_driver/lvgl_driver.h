@@ -8,7 +8,7 @@
 #include "lvgl.h"
 #include "demos/lv_demos.h"
 
-#include "ST7789.h"
+#include "st7789.h"
 
 #define LVGL_BUF_LEN (EXAMPLE_LCD_H_RES * 20)
 #define EXAMPLE_LVGL_TICK_PERIOD_MS 2
@@ -24,4 +24,4 @@ void example_lvgl_flush_cb(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t
 void example_lvgl_port_update_callback(lv_disp_drv_t *drv);
 void example_increase_lvgl_tick(void *arg);
 
-void LVGL_Init(void);  // Call this function to initialize the screen (must be called in the main function) !!!!!
+void lvgl_init(void);  // Call this function to initialize the screen (must be called in the main function) !!!!!
