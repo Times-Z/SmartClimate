@@ -1,6 +1,4 @@
 #include "wifi.h"
-#include "../ble/ble.h"
-#include "../wireless.h"
 
 extern bool ble_scan_finish;
 
@@ -117,11 +115,16 @@ void wifi_scan(void) {
     if (ble_scan_finish) Scan_finish = 1;
 }
 
-/// @brief Create a WiFi Access Point
-/// @param ssid The SSID of the Access Point
-/// @param password The password of the Access Point
-/// @return void
+/// @brief Create a WiFi Access Point using the default ESP-NETIF AP interface.
+/// @param ssid The SSID of the Access Point.
+/// @param password The password of the Access Point.
 void wifi_create_ap(const char *ssid, const char *password) {
+    esp_netif_t *ap_netif = esp_netif_create_default_wifi_ap();
+    if (ap_netif == NULL) {
+        ESP_LOGE(WIFI_TAG, "Error on creating default AP interface");
+        return;
+    }
+
     wifi_config_t ap_config = {
         .ap =
             {
@@ -135,7 +138,6 @@ void wifi_create_ap(const char *ssid, const char *password) {
                 .beacon_interval = 100,
             },
     };
-
     strncpy((char *)ap_config.ap.ssid, ssid, sizeof(ap_config.ap.ssid));
     strncpy((char *)ap_config.ap.password, password, sizeof(ap_config.ap.password));
 
@@ -147,7 +149,23 @@ void wifi_create_ap(const char *ssid, const char *password) {
     ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_AP, &ap_config));
     ESP_ERROR_CHECK(esp_wifi_start());
 
-    ESP_LOGI(WIFI_TAG, "WiFi Access Point %s created with auth method %s", ssid,
+    esp_err_t err = esp_netif_dhcps_stop(ap_netif);
+    if (err != ESP_OK && err != ESP_ERR_ESP_NETIF_DHCP_NOT_STOPPED) {
+        ESP_LOGE(WIFI_TAG, "Error on dhcp stop : %s", esp_err_to_name(err));
+        return;
+    }
+
+    esp_netif_ip_info_t ip_info;
+    IP4_ADDR(&ip_info.ip, 10, 0, 1, 1);
+    IP4_ADDR(&ip_info.gw, 10, 0, 1, 1);
+    IP4_ADDR(&ip_info.netmask, 255, 255, 255, 0);
+    ESP_ERROR_CHECK(esp_netif_set_ip_info(ap_netif, &ip_info));
+
+    ESP_ERROR_CHECK(esp_netif_dhcps_start(ap_netif));
+
+    ESP_LOGI(WIFI_TAG, "Static IP reconfigured on %s", ip_to_str(&ip_info.ip));
+
+    ESP_LOGI(WIFI_TAG, "WiFi Access Point '%s' created with auth method %s", ssid,
              authmode_to_str(ap_config.ap.authmode));
 }
 
@@ -200,4 +218,10 @@ void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id
         ip_event_got_ip_t *event = (ip_event_got_ip_t *)event_data;
         ESP_LOGI(WIFI_TAG, "Current IP address : " IPSTR, IP2STR(&event->ip_info.ip));
     }
+}
+
+char *ip_to_str(const esp_ip4_addr_t *ip) {
+    static char ip_str[16];
+    snprintf(ip_str, sizeof(ip_str), "%d.%d.%d.%d", ip4_addr1(ip), ip4_addr2(ip), ip4_addr3(ip), ip4_addr4(ip));
+    return ip_str;
 }
