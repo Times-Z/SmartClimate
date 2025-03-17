@@ -13,8 +13,8 @@
 #include "lvgl.h"
 #include "driver/ledc.h"
 
-#include "Vernon_ST7789T.h"
-#include "LVGL_Driver.h"
+#include "vernon_st7789t.h"
+#include "lvgl_driver.h"
 // LCD SPI GPIO
 // Using SPI2
 #define LCD_HOST SPI2_HOST
@@ -48,8 +48,8 @@
 
 extern esp_lcd_panel_handle_t panel_handle;
 
-void BK_Init(void);  // Initialize the LCD backlight, which has been called in the LCD_Init function, ignore it
-void BK_Light(uint8_t Light);  // Call this function to adjust the brightness of the backlight. The value of the
-                               // parameter Light ranges from 0 to 100
+void backlight_init(void);  // Initialize the LCD backlight, which has been called in the lcd_init function, ignore it
+void backlight_brightness(uint8_t Light);  // Call this function to adjust the brightness of the backlight. The value of
+                                           // the parameter Light ranges from 0 to 100
 
-void LCD_Init(void);  // Call this function to initialize the screen (must be called in the main function) !!!!!
+void lcd_init(void);  // Call this function to initialize the screen (must be called in the main function) !!!!!
