@@ -5,6 +5,7 @@ ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
 ENV EDITOR=nvim
 ARG USER=ubuntu
+ENV PATH /opt/esp/idf/components/spiffs:$PATH
 
 RUN set -xe; \
     apt-get update \
@@ -13,6 +14,7 @@ RUN set -xe; \
         build-essential \
         clang-tidy \
         cppcheck \
+        liblwip-dev \
         neovim \
         udev \
         usbutils \

@@ -4,7 +4,9 @@
   "idf.customExtraVars": {
     "IDF_TARGET": "esp32c6"
   },
-  "idf.openOcdConfigs": ["board/esp32c6-builtin.cfg"],
+  "idf.openOcdConfigs": [
+    "board/esp32c6-builtin.cfg"
+  ],
   "idf.flashType": "UART",
   "files.associations": {
     "*plays.yml": "ansible",
@@ -12,7 +14,8 @@
     "*.h": "c",
     "format": "c",
     "thread": "c",
-    "chrono": "c"
+    "chrono": "c",
+    "*.obj": "c"
   },
   "C_Cpp.errorSquiggles": "enabled",
   "C_Cpp.clang_format_fallbackStyle": "Google",

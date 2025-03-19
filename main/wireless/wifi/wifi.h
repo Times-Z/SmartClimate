@@ -12,6 +12,7 @@
 #include "lwip/ip4_addr.h"
 #include "../ble/ble.h"
 #include "../wireless.h"
+#include "../captive_portal/captive_portal.h"
 
 extern uint16_t WIFI_NUM;
 extern bool WiFi_Scan_Finish;

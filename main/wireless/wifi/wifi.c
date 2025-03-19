@@ -161,7 +161,13 @@ void wifi_create_ap(const char *ssid, const char *password) {
     IP4_ADDR(&ip_info.netmask, 255, 255, 255, 0);
     ESP_ERROR_CHECK(esp_netif_set_ip_info(ap_netif, &ip_info));
 
+    esp_netif_dns_info_t dns_info;
+    dns_info.ip.u_addr.ip4.addr = ip_info.ip.addr;
+    dns_info.ip.type = ESP_IPADDR_TYPE_V4;
+    ESP_ERROR_CHECK(esp_netif_set_dns_info(ap_netif, ESP_NETIF_DNS_MAIN, &dns_info));
     ESP_ERROR_CHECK(esp_netif_dhcps_start(ap_netif));
+
+    captive_portal_start_dns_server();
 
     ESP_LOGI(WIFI_TAG, "Static IP reconfigured on %s", ip_to_str(&ip_info.ip));
 

@@ -56,6 +56,9 @@ void time_init_from_compile(void) {
     if (settimeofday(&tv, NULL) != 0) {
         ESP_LOGE(TAG, "Error on dateime update");
     } else {
-        ESP_LOGI(TAG, "Initialized datetime : %s", asctime(&tm));
+        char datetime_str[26];
+        strncpy(datetime_str, asctime(&tm), sizeof(datetime_str) - 1);
+        datetime_str[strcspn(datetime_str, "\n")] = '\0';
+        ESP_LOGI(TAG, "Initialized datetime : %s", datetime_str);
     }
 }

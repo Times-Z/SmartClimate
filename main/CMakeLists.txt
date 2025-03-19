@@ -1,7 +1,5 @@
-# Recherche automatiquement tous les fichiers .c
 file(GLOB_RECURSE SOURCES "*.c")
 
-# Inclut automatiquement tous les dossiers qui contiennent des .h
 file(GLOB_RECURSE INCLUDE_DIRS_LIST "*.h")
 set(INCLUDE_DIRS "")
 foreach(header ${INCLUDE_DIRS_LIST})
@@ -14,3 +12,5 @@ idf_component_register(
     SRCS ${SOURCES}
     INCLUDE_DIRS ${INCLUDE_DIRS}
 )
+
+spiffs_create_partition_image(storage webserver/html FLASH_IN_PROJECT)

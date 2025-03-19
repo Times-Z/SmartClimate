@@ -1,8 +1,4 @@
 #include "sd_card.h"
-#include <dirent.h>
-#include <stdio.h>
-#include <string.h>
-#include "esp_vfs_fat.h"
 
 #define EXAMPLE_MAX_CHAR_SIZE 64
 const char *SD_MOUNT_POINT = "/sdcard";
@@ -110,39 +106,6 @@ bool sd_init(void) {
     return true;
 }
 
-/// @brief Show tree of files and directories
-/// @param base_path The base path (ex. SD_MOUNT_POINT).
-/// @param indent The indentation level (to use recursively, start at 0).
-/// @return void
-void sd_list_tree(const char *base_path, int indent) {
-    DIR *dir = opendir(base_path);
-    if (dir == NULL) {
-        ESP_LOGE(SD_TAG, "Impossible to open dir %s", base_path);
-        return;
-    }
-
-    struct dirent *entry;
-    while ((entry = readdir(dir)) != NULL) {
-        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) continue;
-
-        for (int i = 0; i < indent; i++) {
-            printf("    ");
-        }
-        printf("├── %s\n", entry->d_name);
-
-        char full_path[256];
-        full_path[0] = '\0';
-        strlcpy(full_path, base_path, sizeof(full_path));
-        strlcat(full_path, "/", sizeof(full_path));
-        strlcat(full_path, entry->d_name, sizeof(full_path));
-
-        if (entry->d_type == DT_DIR) {
-            sd_list_tree(full_path, indent + 1);
-        }
-    }
-    closedir(dir);
-}
-
 /// @brief Check the space available in the SD card
 /// @param void
 /// @return void
@@ -167,9 +130,6 @@ void sd_check_space(void) {
         if (free_sect < (tot_sect * 0.2)) {
             ESP_LOGW(SD_TAG, "SD Card memory is almost full, used sectors = (%u), total sectors = (%u)",
                      tot_sect - free_sect, tot_sect);
-        } else {
-            ESP_LOGI(SD_TAG, "SD Card memory used sectors = (%u), total sectors = (%u)", tot_sect - free_sect,
-                     tot_sect);
         }
 
     } else {
