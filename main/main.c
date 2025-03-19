@@ -4,6 +4,7 @@
 #include "storage.h"
 #include "wireless.h"
 #include "log.h"
+#include "webserver.h"
 #include "esp_log.h"
 #include "esp_system.h"
 #include "esp_sleep.h"
@@ -18,6 +19,12 @@ const char *APP_VERSION;
 void initialize_components(void) {
     ESP_LOGI(MAIN_TAG, "Initializing system components...");
 
+    esp_err_t err = esp_event_loop_create_default();
+    if (err != ESP_OK && err != ESP_ERR_INVALID_STATE) {
+        ESP_LOGE(MAIN_TAG, "Error on default event loop creation : %d", err);
+        esp_restart();
+    }
+
     time_init_from_compile();
 
     if (storage_init() != true) {
@@ -30,6 +37,8 @@ void initialize_components(void) {
         ESP_LOGE(MAIN_TAG, "wireless initialization failed. Restarting...");
         esp_restart();
     }
+
+    webserver_start();
 
     rgb_init();
     rgb_example();

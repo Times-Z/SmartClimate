@@ -26,6 +26,4 @@ extern const char *SD_MOUNT_POINT;
 extern uint32_t SDCard_Size;
 extern uint32_t Flash_Size;
 bool sd_init(void);
-void sd_list_files(const char *path);
-void sd_list_tree(const char *base_path, int indent);
 void sd_check_space(void);
