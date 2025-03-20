@@ -6,6 +6,7 @@ ENV LANG=C.UTF-8
 ENV EDITOR=nvim
 ARG USER=ubuntu
 ENV PATH /opt/esp/idf/components/spiffs:$PATH
+ENV ESPPORT /dev/ttyACM0
 
 RUN set -xe; \
     apt-get update \

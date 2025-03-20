@@ -4,10 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Setup SmartClimate</title>
-    <link
-      rel="stylesheet"
-      href="http://smartclimate.local/css/milligram.min.css"
-    />
+    <link rel="stylesheet" href="css/milligram.min.css" />
     <style>
       html,
       body {
@@ -34,12 +31,23 @@
           SmartClimate helps you monitor and optimize your environment. Follow
           the steps below to set up your system.
         </p>
-        <button class="button">Get Started</button>
+        <button class="button" id="get-started-btn">Get Started</button>
       </section>
     </main>
 
     <footer class="container">
-      <p>&copy; 2025 SmartClimate.</p>
+      <p>&copy; <span id="current-year"></span> SmartClimate.</p>
+      <script>
+        document.getElementById("current-year").textContent =
+          new Date().getFullYear();
+      </script>
     </footer>
+
+    <script src="js/umbrella.min.js"></script>
+    <script>
+      u("#get-started-btn").on("click", function () {
+        alert("Welcome to SmartClimate setup!");
+      });
+    </script>
   </body>
 </html>

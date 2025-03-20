@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include "esp_http_server.h"
 #include "esp_log.h"
-#include "espressif__mdns/include/mdns.h"
+#include <stdio.h>
+#include <string.h>
 
 extern const char *APP_NAME;
 
