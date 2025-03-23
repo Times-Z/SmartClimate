@@ -57,6 +57,8 @@ Before setting up SmartClimate, ensure you have the following installed:
    - Open VS Code and install the ESP-IDF extension.
    - Follow the setup instructions to configure the ESP32-C6 environment.
 
+### Both
+
 3. **Build and flash the firmware:**
    ```sh
    idf.py build
@@ -73,14 +75,29 @@ Before setting up SmartClimate, ensure you have the following installed:
   ```
 
 ## Swagger API documentation
+➡️ [SmartClimate API Swagger](./swagger.yml)
 
 ## Features
 
-- [x] Captive portal functionality compatible with both Android and iOS for easy Wi-Fi configuration.
+- [x] Embedded web server with HTTP endpoints
+- [x] Wi-Fi station (STA) mode support
+- [x] Captive portal for Wi-Fi access point (AP) mode
+- [x] NVS-based persistent storage for configuration and credentials
+- [x] Uptime tracking (seconds to days format)
+- [x] Lightweight JSON API for system status and configuration
+- [x] Graphical user interface built with LVGL
 
 ## Roadmap
 
-- [ ] First release
+- [] NTP-based time synchronization
+- [] UI theming & styling system
+- [] Internationalization (i18n) support
+- [] Better error feedback on failed Wi-Fi connection
+- [] System metrics dashboard (RAM, CPU, temp)
+- [] Web UI with live config over HTTP
+- [] BLE pairing & config mode
+- [] WebSocket real-time updates
+- [] Config export/import (JSON/NVS backup)
 
 ## License
 
