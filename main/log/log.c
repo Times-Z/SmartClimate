@@ -10,7 +10,7 @@
 /// @param void
 /// @return const char * : The log file path
 static const char *get_log_file_path(void) {
-    static char log_file_path[256] = {0};
+    static char log_file_path[128] = {0};
 
     if (log_file_path[0] == '\0') {
         snprintf(log_file_path, sizeof(log_file_path), "%s/%s/%s.log", SD_MOUNT_POINT, APP_NAME, APP_VERSION);

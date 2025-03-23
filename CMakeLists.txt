@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.16)
 set(IDF_TARGET "esp32c6")
 
 execute_process(
-    COMMAND git describe --tags --always --dirty=-dev
+    COMMAND git describe --tags --always --dirty=-dev --broken=-dev
     OUTPUT_VARIABLE GIT_VERSION
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )

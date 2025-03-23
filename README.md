@@ -72,6 +72,8 @@ Before setting up SmartClimate, ensure you have the following installed:
   idf.py monitor
   ```
 
+## Swagger API documentation
+
 ## Features
 
 - [x] Captive portal functionality compatible with both Android and iOS for easy Wi-Fi configuration.

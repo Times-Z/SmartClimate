@@ -7,6 +7,7 @@ foreach(header ${INCLUDE_DIRS_LIST})
     list(APPEND INCLUDE_DIRS ${dir})
 endforeach()
 list(REMOVE_DUPLICATES INCLUDE_DIRS)
+list(APPEND INCLUDE_DIRS "${PROJECT_DIR}/managed_components/lvgl__lvgl/src/libs/qrcode")
 
 idf_component_register(
     SRCS ${SOURCES}

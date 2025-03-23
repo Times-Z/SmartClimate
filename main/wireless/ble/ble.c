@@ -1,15 +1,16 @@
 #include "ble.h"
-#include "../wireless.h"
 
 uint16_t ble_num = 0;
-bool ble_scan_finish = 0;
+bool ble_scan_finish = false;
 
 static discovered_device_t discovered_devices[MAX_DISCOVERED_DEVICES];
 static size_t num_discovered_devices = 0;
-static size_t num_devices_with_name = 0;
 
-extern bool WiFi_Scan_Finish;
+static const char *TAG = "BLE_SCAN";
 
+/// @brief Check if a BLE device has already been discovered based on its address
+/// @param addr Pointer to the 6-byte BLE address
+/// @return true if the device is already in the list, false otherwise
 static bool is_device_discovered(const uint8_t *addr) {
     for (size_t i = 0; i < num_discovered_devices; i++) {
         if (memcmp(discovered_devices[i].address, addr, 6) == 0) {
@@ -19,6 +20,9 @@ static bool is_device_discovered(const uint8_t *addr) {
     return false;
 }
 
+/// @brief Add a BLE device to the discovered devices list
+/// @param addr Pointer to the 6-byte BLE address of the new device
+/// @return void
 static void add_device_to_list(const uint8_t *addr) {
     if (num_discovered_devices < MAX_DISCOVERED_DEVICES) {
         memcpy(discovered_devices[num_discovered_devices].address, addr, 6);
@@ -27,160 +31,84 @@ static void add_device_to_list(const uint8_t *addr) {
     }
 }
 
-static bool extract_device_name(const uint8_t *adv_data, uint8_t adv_data_len, char *device_name, size_t max_name_len) {
-    size_t offset = 0;
-    while (offset < adv_data_len) {
-        if (adv_data[offset] == 0) break;
+/// @brief NimBLE sync callback. Called when BLE host stack is ready
+/// @param void
+/// @return void
+static void ble_app_on_sync(void) {
+    uint8_t addr_type;
+    int rc = ble_hs_id_infer_auto(0, &addr_type);
 
-        uint8_t length = adv_data[offset];
-        if (length == 0 || offset + length > adv_data_len) break;
-
-        uint8_t type = adv_data[offset + 1];
-        if (type == ESP_BLE_AD_TYPE_NAME_CMPL || type == ESP_BLE_AD_TYPE_NAME_SHORT) {
-            if (length > 1 && length - 1 < max_name_len) {
-                memcpy(device_name, &adv_data[offset + 2], length - 1);
-                device_name[length - 1] = '\0';
-                return true;
-            } else {
-                return false;
-            }
-        }
-        offset += length + 1;
-    }
-    return false;
-}
-
-static void esp_gap_cb(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param) {
-    static char device_name[100];
-
-    switch (event) {
-        case ESP_GAP_BLE_SCAN_RESULT_EVT:
-            if (param->scan_rst.search_evt == ESP_GAP_SEARCH_INQ_RES_EVT) {
-                if (!is_device_discovered(param->scan_rst.bda)) {
-                    add_device_to_list(param->scan_rst.bda);
-                    ble_num++;
-
-                    if (extract_device_name(param->scan_rst.ble_adv, param->scan_rst.adv_data_len, device_name,
-                                            sizeof(device_name))) {
-                        num_devices_with_name++;
-                        printf("Found device: %02X:%02X:%02X:%02X:%02X:%02X\n        Name: %s\n        RSSI: %d\r\n",
-                               param->scan_rst.bda[0], param->scan_rst.bda[1], param->scan_rst.bda[2],
-                               param->scan_rst.bda[3], param->scan_rst.bda[4], param->scan_rst.bda[5], device_name,
-                               param->scan_rst.rssi);
-                        printf("\r\n");
-                    } else {
-                        printf(
-                            "Found device: %02X:%02X:%02X:%02X:%02X:%02X\n        Name: Unknown\n        RSSI: %d\r\n",
-                            param->scan_rst.bda[0], param->scan_rst.bda[1], param->scan_rst.bda[2],
-                            param->scan_rst.bda[3], param->scan_rst.bda[4], param->scan_rst.bda[5],
-                            param->scan_rst.rssi);
-                        printf("\r\n");
-                    }
-                }
-            }
-            break;
-        case ESP_GAP_BLE_SCAN_STOP_COMPLETE_EVT:
-            ESP_LOGI(GATTC_TAG, "Scan complete. Total devices found: %d (with names: %d)", ble_num,
-                     num_devices_with_name);
-            break;
-        default:
-            break;
-    }
-}
-
-void ble_init(void *arg) {
-    ESP_ERROR_CHECK(esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT));
-
-    esp_bt_controller_config_t bt_cfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
-    esp_err_t ret = esp_bt_controller_init(&bt_cfg);
-    if (ret) {
-        printf("%s initialize controller failed: %s\n", __func__, esp_err_to_name(ret));
-        return;
-    }
-    ret = esp_bt_controller_enable(ESP_BT_MODE_BLE);
-    if (ret) {
-        printf("%s enable controller failed: %s\n", __func__, esp_err_to_name(ret));
-        return;
-    }
-    ret = esp_bluedroid_init();
-    if (ret) {
-        printf("%s init bluetooth failed: %s\n", __func__, esp_err_to_name(ret));
-        return;
-    }
-    ret = esp_bluedroid_enable();
-    if (ret) {
-        printf("%s enable bluetooth failed: %s\n", __func__, esp_err_to_name(ret));
+    if (rc != 0) {
+        ESP_LOGE("BLE", "ble_hs_id_infer_auto failed: %d", rc);
         return;
     }
 
-    ret = esp_ble_gap_register_callback(esp_gap_cb);
-    if (ret) {
-        printf("%s gap register error, error code = %x\n", __func__, ret);
-        return;
-    }
     ble_scan();
-
-    vTaskDelete(NULL);
 }
 
-// void ble_init(void *arg) {
-//     ESP_ERROR_CHECK(esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT));
+/// @brief BLE GAP event handler. Handles discovered devices and scan completion
+/// @param event Pointer to the BLE GAP event structure
+/// @param arg User-defined argument (unused)
+/// @return 0 on success
+static int ble_gap_event(struct ble_gap_event *event, void *arg) {
+    switch (event->type) {
+        case BLE_GAP_EVENT_DISC:
+            ESP_LOGI(TAG, "Device discovered");
+            struct ble_hs_adv_fields fields;
+            int rc = ble_hs_adv_parse_fields(&fields, event->disc.data, event->disc.length_data);
+            if (rc != 0) {
+                ESP_LOGW(TAG, "Failed to parse advertisement data");
+            }
 
-//     esp_bt_controller_config_t bt_cfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
-//     esp_err_t ret;
+            const uint8_t *addr = event->disc.addr.val;
+            if (!is_device_discovered(addr)) {
+                add_device_to_list(addr);
+                ble_num++;
+                char addr_str[18];
+                snprintf(addr_str, sizeof(addr_str), "%02X:%02X:%02X:%02X:%02X:%02X", addr[0], addr[1], addr[2],
+                         addr[3], addr[4], addr[5]);
+                ESP_LOGI(TAG, "New device: %s", addr_str);
+            }
+            return 0;
 
-//     ret = esp_bt_controller_init(&bt_cfg);
-//     if (ret != ESP_OK) {
-//         printf("%s initialize controller failed: %s\n", __func__, esp_err_to_name(ret));
-//         return;
-//     }
+        case BLE_GAP_EVENT_DISC_COMPLETE:
+            ESP_LOGI(TAG, "Scan complete");
+            ble_scan_finish = true;
+            return 0;
 
-//     ret = esp_bt_controller_enable(ESP_BT_MODE_BLE);
-//     if (ret != ESP_OK) {
-//         printf("%s enable controller failed: %s\n", __func__, esp_err_to_name(ret));
-//         return;
-//     }
+        default:
+            return 0;
+    }
+}
 
-//     ret = esp_bluedroid_init();
-//     if (ret != ESP_OK) {
-//         printf("%s init bluetooth failed: %s\n", __func__, esp_err_to_name(ret));
-//         return;
-//     }
-
-//     ret = esp_bluedroid_enable();
-//     if (ret != ESP_OK) {
-//         printf("%s enable bluetooth failed: %s\n", __func__, esp_err_to_name(ret));
-//         return;
-//     }
-
-//     ret = esp_ble_gap_register_callback(esp_gap_cb);
-//     if (ret != ESP_OK) {
-//         printf("%s gap register error, error code = %x\n", __func__, ret);
-//         return;
-//     }
-
-//     ble_scan();
-//     vTaskDelete(NULL);
-// }
-
+/// @brief Start BLE scan with predefined parameters.
+///        This function triggers passive scanning and handles discovered devices via callbacks.
 void ble_scan(void) {
-    esp_ble_scan_params_t scan_params = {.scan_type = BLE_SCAN_TYPE_ACTIVE,
-                                         .own_addr_type = BLE_ADDR_TYPE_RPA_PUBLIC,
-                                         .scan_filter_policy = BLE_SCAN_FILTER_ALLOW_ALL,
-                                         .scan_interval = 0x50,
-                                         .scan_window = 0x30,
-                                         .scan_duplicate = BLE_SCAN_DUPLICATE_DISABLE};
-    ESP_ERROR_CHECK(esp_ble_gap_set_scan_params(&scan_params));
+    struct ble_gap_disc_params scan_params = {
+        .passive = 1,
+        .filter_duplicates = 1,
+        .limited = 0,
+    };
 
-    printf("Starting BLE scan...\n");
-    ESP_ERROR_CHECK(esp_ble_gap_start_scanning(SCAN_DURATION));
+    int rc = ble_gap_disc(0, SCAN_DURATION * 1000, &scan_params, ble_gap_event, NULL);
+    if (rc != 0) {
+        ESP_LOGE(TAG, "Error initiating GAP discovery procedure: %d", rc);
+    }
+}
 
-    // Set scanning duration
-    vTaskDelay(SCAN_DURATION * 1000 / portTICK_PERIOD_MS);
+/// @brief NimBLE host task. Must be run in its own FreeRTOS task context.
+/// @param param Unused parameter.
+void ble_host_task(void *param) {
+    nimble_port_run();
+    nimble_port_freertos_deinit();
+}
 
-    printf("Stopping BLE scan...\n");
-    ESP_ERROR_CHECK(esp_ble_gap_stop_scanning());
+/// @brief Initialize the NimBLE stack and start the host task.
+///        Sets up BLE configuration and prepares the system for scanning.
+void ble_init(void) {
+    nimble_port_init();
 
-    ble_scan_finish = 1;
-    if (WiFi_Scan_Finish == 1) Scan_finish = 1;
+    ble_hs_cfg.sync_cb = ble_app_on_sync;
+
+    nimble_port_freertos_init(ble_host_task);
 }

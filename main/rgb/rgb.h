@@ -1,7 +1,7 @@
 #pragma once
 
-#include "driver/gpio.h"
-#include "led_strip.h"
+#include <driver/gpio.h>
+#include <led_strip.h>
 
 #define BLINK_GPIO 8
 

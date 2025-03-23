@@ -2,7 +2,7 @@
 #include <dirent.h>
 #include <stdio.h>
 #include <string.h>
-#include "esp_vfs_fat.h"
+#include <esp_vfs_fat.h>
 
 static const char* SPIFFS_TAG = "SPIFFS";
 const char* SPIFFS_MOUNTPOINT = "/spiffs";
