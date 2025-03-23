@@ -6,22 +6,22 @@
 
 #include <stdlib.h>
 #include <sys/cdefs.h>
-#include "sdkconfig.h"
+#include <sdkconfig.h>
 #if CONFIG_LCD_ENABLE_DEBUG_LOG
 // The local log level must be defined before including esp_log.h
 // Set the maximum log level for this source file
 #define LOG_LOCAL_LEVEL ESP_LOG_DEBUG
 #endif
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "esp_lcd_panel_interface.h"
-#include "esp_lcd_panel_io.h"
-#include "esp_lcd_panel_vendor.h"
-#include "esp_lcd_panel_ops.h"
-#include "esp_lcd_panel_commands.h"
-#include "driver/gpio.h"
-#include "esp_log.h"
-#include "esp_check.h"
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
+#include <esp_lcd_panel_interface.h>
+#include <esp_lcd_panel_io.h>
+#include <esp_lcd_panel_vendor.h>
+#include <esp_lcd_panel_ops.h>
+#include <esp_lcd_panel_commands.h>
+#include <driver/gpio.h>
+#include <esp_log.h>
+#include <esp_check.h>
 
 #include "vernon_st7789t/vernon_st7789t.h"
 

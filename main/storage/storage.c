@@ -1,9 +1,10 @@
-#include "storage.h"
 #include <errno.h>
 #include <dirent.h>
 #include <stdio.h>
 #include <string.h>
-#include "esp_vfs_fat.h"
+#include <esp_vfs_fat.h>
+
+#include "storage.h"
 
 const char *STORAGE_TAG = "STORAGE";
 

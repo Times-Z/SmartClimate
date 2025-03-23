@@ -1,6 +1,6 @@
 #include "sd_card.h"
 
-#define EXAMPLE_MAX_CHAR_SIZE 64
+#define SD_MAX_CHAR_SIZE 64
 const char *SD_MOUNT_POINT = "/sdcard";
 
 static const char *SD_TAG = "SD";
@@ -29,7 +29,7 @@ esp_err_t s_example_read_file(const char *path) {
         ESP_LOGE(SD_TAG, "Failed to open file for reading");
         return ESP_FAIL;
     }
-    char line[EXAMPLE_MAX_CHAR_SIZE];
+    char line[SD_MAX_CHAR_SIZE];
     fgets(line, sizeof(line), f);
     fclose(f);
 

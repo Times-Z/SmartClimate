@@ -1,95 +1,98 @@
+
 #include "lvgl_driver.h"
 
-static const char *TAG_LVGL = "WS_LVGL";
+#define LCD_H_RES 172
+#define LCD_V_RES 320
+#define LVGL_TICK_PERIOD_MS 2
+#define Offset_X 0
+#define Offset_Y 0
+#define LV_BUFFER_LINES 40
 
-static lv_color_t buf1[LVGL_BUF_LEN];
-static lv_color_t buf2[LVGL_BUF_LEN];
-// static lv_color_t* buf1 = (lv_color_t*) heap_caps_malloc(LVGL_BUF_LEN , MALLOC_CAP_SPIRAM);
-// static lv_color_t* buf2 = (lv_color_t*) heap_caps_malloc(LVGL_BUF_LEN , MALLOC_CAP_SPIRAM);
+static const char *TAG = "LVGL";
 
-lv_disp_draw_buf_t disp_buf;  // contains internal graphic buffer(s) called draw buffer(s)
-lv_disp_drv_t disp_drv;       // contains callback functions
+lv_display_t *disp;
 
-void example_increase_lvgl_tick(void *arg) {
-    /* Tell LVGL how many milliseconds has elapsed */
-    lv_tick_inc(EXAMPLE_LVGL_TICK_PERIOD_MS);
+void *lv_malloc_core(size_t size) { return heap_caps_malloc(size, MALLOC_CAP_DMA); }
+
+void lv_free_core(void *ptr) { heap_caps_free(ptr); }
+
+void *lv_realloc_core(void *ptr, size_t new_size) {
+    if (!ptr) return lv_malloc_core(new_size);
+    void *new_ptr = lv_malloc_core(new_size);
+    if (new_ptr) {
+        memcpy(new_ptr, ptr, new_size);
+        lv_free_core(ptr);
+    }
+    return new_ptr;
+}
+void lv_mem_init(void) {}
+
+void lvgl_increase_lvgl_tick(void *arg) { lv_tick_inc(LVGL_TICK_PERIOD_MS); }
+
+void lvgl_flush_cb(lv_display_t *disp, const lv_area_t *area, uint8_t *px_map) {
+    esp_lcd_panel_handle_t panel_handle = (esp_lcd_panel_handle_t)lv_display_get_user_data(disp);
+    esp_lcd_panel_draw_bitmap(panel_handle, area->x1 + Offset_X, area->y1 + Offset_Y, area->x2 + Offset_X + 1,
+                              area->y2 + Offset_Y + 1, px_map);
+    lv_display_flush_ready(disp);
 }
 
-bool example_notify_lvgl_flush_ready(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_io_event_data_t *edata,
-                                     void *user_ctx) {
-    lv_disp_drv_t *disp_driver = (lv_disp_drv_t *)user_ctx;
-    lv_disp_flush_ready(disp_driver);
-    return false;
-}
-
-void example_lvgl_flush_cb(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_map) {
-    esp_lcd_panel_handle_t panel_handle = (esp_lcd_panel_handle_t)drv->user_data;
-    int offsetx1 = area->x1;
-    int offsetx2 = area->x2;
-    int offsety1 = area->y1;
-    int offsety2 = area->y2;
-    // copy a buffer's content to a specific area of the display
-    esp_lcd_panel_draw_bitmap(panel_handle, offsetx1 + Offset_X, offsety1 + Offset_Y, offsetx2 + Offset_X + 1,
-                              offsety2 + Offset_Y + 1, color_map);
-}
-
-/* Rotate display and touch, when rotated screen in LVGL. Called when driver parameters are updated. */
-void example_lvgl_port_update_callback(lv_disp_drv_t *drv) {
-    esp_lcd_panel_handle_t panel_handle = (esp_lcd_panel_handle_t)drv->user_data;
-
-    switch (drv->rotated) {
-        case LV_DISP_ROT_NONE:
-            // Rotate LCD display
+void lvgl_port_update_callback(lv_display_t *disp) {
+    esp_lcd_panel_handle_t panel_handle = (esp_lcd_panel_handle_t)lv_display_get_user_data(disp);
+    switch (lv_display_get_rotation(disp)) {
+        case LV_DISPLAY_ROTATION_0:
             esp_lcd_panel_swap_xy(panel_handle, false);
             esp_lcd_panel_mirror(panel_handle, true, false);
             break;
-        case LV_DISP_ROT_90:
-            // Rotate LCD display
+        case LV_DISPLAY_ROTATION_90:
             esp_lcd_panel_swap_xy(panel_handle, true);
             esp_lcd_panel_mirror(panel_handle, true, true);
             break;
-        case LV_DISP_ROT_180:
-            // Rotate LCD display
+        case LV_DISPLAY_ROTATION_180:
             esp_lcd_panel_swap_xy(panel_handle, false);
             esp_lcd_panel_mirror(panel_handle, false, true);
             break;
-        case LV_DISP_ROT_270:
-            // Rotate LCD display
+        case LV_DISPLAY_ROTATION_270:
             esp_lcd_panel_swap_xy(panel_handle, true);
             esp_lcd_panel_mirror(panel_handle, false, false);
             break;
     }
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-lv_disp_t *disp;
 void lvgl_init(void) {
-    ESP_LOGI(TAG_LVGL, "Initialize LVGL library");
+    ESP_LOGI(TAG, "Initialize LVGL library");
     lv_init();
+    disp = lv_display_create(LCD_H_RES, LCD_V_RES);
+    lv_display_set_render_mode(disp, LV_DISPLAY_RENDER_MODE_PARTIAL);
 
-    lv_disp_draw_buf_init(&disp_buf, buf1, buf2, LVGL_BUF_LEN);  // initialize LVGL draw buffers
+    lv_color_t *buf1 = heap_caps_malloc(sizeof(lv_color_t) * LCD_H_RES * LV_BUFFER_LINES, MALLOC_CAP_DMA);
+    lv_color_t *buf2 = heap_caps_malloc(sizeof(lv_color_t) * LCD_H_RES * LV_BUFFER_LINES, MALLOC_CAP_DMA);
 
-    ESP_LOGI(TAG_LVGL, "Register display driver to LVGL");
-    lv_disp_drv_init(&disp_drv);  // Create a new screen object and initialize the associated device
-    disp_drv.hor_res = EXAMPLE_LCD_H_RES;
-    disp_drv.ver_res = EXAMPLE_LCD_V_RES;  // Horizontal pixel count
-    // disp_drv.rotated = LV_DISP_ROT_90; // 图像旋转                                                            //
-    // Vertical axis pixel count
-    disp_drv.flush_cb = example_lvgl_flush_cb;  // Function : copy a buffer's content to a specific area of the display
-    disp_drv.drv_update_cb =
-        example_lvgl_port_update_callback;  // Function : Rotate display and touch, when rotated screen in LVGL. Called
-                                            // when driver parameters are updated.
-    disp_drv.draw_buf = &disp_buf;          // LVGL will use this buffer(s) to draw the screens contents
-    disp_drv.user_data = panel_handle;
-    ESP_LOGI(TAG_LVGL, "Register display indev to LVGL");  // Custom display driver user data
-    disp = lv_disp_drv_register(&disp_drv);                // Create screen objects
+    assert(buf1 && buf2 && "Failed to allocate LVGL draw buffers");
 
-    /********************* LVGL *********************/
-    ESP_LOGI(TAG_LVGL, "Install LVGL tick timer");
-    // Tick interface for LVGL (using esp_timer to generate 2ms periodic event)
-    const esp_timer_create_args_t lvgl_tick_timer_args = {.callback = &example_increase_lvgl_tick, .name = "lvgl_tick"};
+    lv_draw_buf_t *draw_buf1 = malloc(sizeof(lv_draw_buf_t));
+    lv_draw_buf_t *draw_buf2 = malloc(sizeof(lv_draw_buf_t));
+    assert(draw_buf1 && draw_buf2);
 
+    uint32_t stride = LCD_H_RES * sizeof(lv_color_t);
+
+    lv_draw_buf_init(draw_buf1, LCD_H_RES, 40, LV_COLOR_FORMAT_NATIVE, stride, buf1,
+                     LCD_H_RES * 40 * sizeof(lv_color_t));
+    lv_draw_buf_init(draw_buf2, LCD_H_RES, 40, LV_COLOR_FORMAT_NATIVE, stride, buf2,
+                     LCD_H_RES * 40 * sizeof(lv_color_t));
+
+    lv_display_set_draw_buffers(disp, draw_buf1, draw_buf2);
+
+    lv_display_set_flush_cb(disp, lvgl_flush_cb);
+
+    extern esp_lcd_panel_handle_t panel_handle;
+    lv_display_set_user_data(disp, panel_handle);
+
+    lv_display_set_rotation(disp, LV_DISPLAY_ROTATION_0);
+    lvgl_port_update_callback(disp);
+
+    ESP_LOGI(TAG, "Install LVGL tick timer");
+    const esp_timer_create_args_t lvgl_tick_timer_args = {.callback = &lvgl_increase_lvgl_tick, .name = "lvgl_tick"};
     esp_timer_handle_t lvgl_tick_timer = NULL;
     ESP_ERROR_CHECK(esp_timer_create(&lvgl_tick_timer_args, &lvgl_tick_timer));
-    ESP_ERROR_CHECK(esp_timer_start_periodic(lvgl_tick_timer, EXAMPLE_LVGL_TICK_PERIOD_MS * 1000));
+    ESP_ERROR_CHECK(esp_timer_start_periodic(lvgl_tick_timer, LVGL_TICK_PERIOD_MS * 1000));
 }

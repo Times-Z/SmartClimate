@@ -5,49 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Setup SmartClimate</title>
     <link rel="stylesheet" href="css/milligram.min.css" />
-    <style>
-      html,
-      body {
-        height: 100%;
-      }
-      body {
-        display: flex;
-        flex-direction: column;
-      }
-      main {
-        flex: 1;
-      }
-    </style>
+    <link rel="stylesheet" href="css/style.css" />
   </head>
   <body>
-    <header class="container">
-      <h1>Setup SmartClimate</h1>
+    <header>
+      <h1>SmartClimate Setup</h1>
     </header>
 
-    <main class="container">
-      <section>
-        <h2>Welcome to SmartClimate</h2>
-        <p>
-          SmartClimate helps you monitor and optimize your environment. Follow
-          the steps below to set up your system.
-        </p>
-        <button class="button" id="get-started-btn">Get Started</button>
-      </section>
+    <main>
+      <p>Check system status and scan for available Wi-Fi networks.</p>
+      <button id="api-status-btn">ESP Status</button>
+      <button id="wifi-scan-btn">Scan Wi-Fi</button>
+      <div id="loader" class="spinner" style="display: none"></div>
+      <div id="output"></div>
     </main>
 
-    <footer class="container">
-      <p>&copy; <span id="current-year"></span> SmartClimate.</p>
-      <script>
-        document.getElementById("current-year").textContent =
-          new Date().getFullYear();
-      </script>
+    <footer>
+      <p>&copy; <span id="current-year"></span> SmartClimate</p>
     </footer>
 
-    <script src="js/umbrella.min.js"></script>
-    <script>
-      u("#get-started-btn").on("click", function () {
-        alert("Welcome to SmartClimate setup!");
-      });
-    </script>
+    <script src="js/main.js"></script>
   </body>
 </html>
