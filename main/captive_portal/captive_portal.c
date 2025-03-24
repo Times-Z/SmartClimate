@@ -90,6 +90,9 @@ static void captive_portal_dns_server_task(void *pvParameters) {
     vTaskDelete(NULL);
 }
 
+/// @brief start the captive portal task
+/// @param  void
+/// @return void
 void captive_portal_start_dns_server(void) {
     if (dns_task_handle != NULL) {
         ESP_LOGW(TAG, "DNS server already running");
@@ -99,6 +102,9 @@ void captive_portal_start_dns_server(void) {
     xTaskCreate(captive_portal_dns_server_task, "dns_server", 4096, NULL, 5, &dns_task_handle);
 }
 
+/// @brief stop the captive portal task
+/// @param  void
+/// @return void
 void captive_portal_stop_dns_server(void) {
     if (dns_task_handle != NULL) {
         if (dns_socket != -1) {

@@ -11,12 +11,18 @@ bool wireless_Init(void) {
     return true;
 }
 
+/// @brief Transform esp_ip4_addr_t to string
+/// @param esp_ip4_addr_t
+/// @return char stringify ip
 char *ip_to_str(const esp_ip4_addr_t *ip) {
     static char ip_str[16];
     snprintf(ip_str, sizeof(ip_str), "%d.%d.%d.%d", ip4_addr1(ip), ip4_addr2(ip), ip4_addr3(ip), ip4_addr4(ip));
     return ip_str;
 }
 
+/// @brief Return wifi_auth_mode_t to string
+/// @param wifi_auth_mode_t authmode
+/// @return char stringify authmode
 const char *authmode_to_str(wifi_auth_mode_t authmode) {
     switch (authmode) {
         case WIFI_AUTH_OPEN:

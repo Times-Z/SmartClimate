@@ -5,6 +5,9 @@ static const char *TAG_LCD = "LCD";
 
 esp_lcd_panel_handle_t panel_handle = NULL;
 
+/// @brief init lcd panel
+/// @param void
+/// @return void
 void lcd_init(void) {
     ESP_LOGI(TAG_LCD, "Install panel IO");
 
@@ -39,6 +42,9 @@ void lcd_init(void) {
     ESP_LOGI(TAG_LCD, "LCD initialized");
 }
 
+/// @brief set the backlight brightness
+/// @param uint8_t brightness_percent of the screen
+/// @return void
 void backlight_brightness(uint8_t brightness_percent) {
     if (brightness_percent > 100) brightness_percent = 100;
 

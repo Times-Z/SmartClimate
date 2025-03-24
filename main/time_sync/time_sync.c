@@ -2,6 +2,9 @@
 
 static const char *TAG = "TIME_SYNC";
 
+/// @brief init system datetime with compiled time
+/// @param void
+/// @return void
 void time_init_from_compile(void) {
     struct tm tm = {0};
 

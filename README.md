@@ -27,10 +27,13 @@ Before setting up SmartClimate, ensure you have the following installed:
 
 ### Partitions
 
-| # Name  | Type | SubType | Offset   | Size     | Flags |
-| :------ | :--- | :------ | :------- | :------- | ----: |
-| nvs     | data | nvs     | 0x9000   | 0x100000 |   nan |
-| factory | app  | factory | 0x110000 | 0x2F0000 |   nan |
+SmartClimate uses a custom partition table tailored for persistent storage, application firmware, and static assets.
+
+| Name      | Type | SubType | Offset   | Size     | Size (KB) | Description                |
+| :-------- | :--- | :------ | :------- | :------- | :-------- | :------------------------- |
+| `nvs`     | data | nvs     | 0x9000   | 0x80000  | 512 KB    | Non-volatile storage (NVS) |
+| `factory` | app  | factory | 0x90000  | 0x200000 | 2048 KB   | Main application binary    |
+| `storage` | data | spiffs  | 0x290000 | 0x170000 | 1472 KB   | SPIFFS for static assets   |
 
 ## Installation
 
@@ -74,8 +77,9 @@ Before setting up SmartClimate, ensure you have the following installed:
   idf.py monitor
   ```
 
-## Swagger API documentation
-➡️ [SmartClimate API Swagger](./swagger.yml)
+## API documentation
+
+[SmartClimate API Swagger](./swagger.yml)
 
 ## Features
 
@@ -89,15 +93,15 @@ Before setting up SmartClimate, ensure you have the following installed:
 
 ## Roadmap
 
-- [] NTP-based time synchronization
-- [] UI theming & styling system
-- [] Internationalization (i18n) support
-- [] Better error feedback on failed Wi-Fi connection
-- [] System metrics dashboard (RAM, CPU, temp)
-- [] Web UI with live config over HTTP
-- [] BLE pairing & config mode
-- [] WebSocket real-time updates
-- [] Config export/import (JSON/NVS backup)
+- [ ] NTP-based time synchronization
+- [ ] UI theming & styling system
+- [ ] Internationalization (i18n) support
+- [ ] Better error feedback on failed Wi-Fi connection
+- [ ] System metrics dashboard (RAM, CPU, temp)
+- [ ] Web UI with live config over HTTP
+- [ ] BLE pairing & config mode
+- [ ] WebSocket real-time updates
+- [ ] Config export/import (JSON/NVS backup)
 
 ## License
 

@@ -36,7 +36,7 @@ void initialize_components(void) {
     rgb_example();
 
     lcd_init();
-    backlight_brightness(50);
+    backlight_brightness(100);
     lvgl_init();
 
     if (wireless_Init() != true) {

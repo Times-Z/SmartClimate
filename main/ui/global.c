@@ -75,6 +75,9 @@ void ui_show_idle_cat_animation(void) {
     cat_timer = lv_timer_create(cat_idle_anim_cb, 400, NULL);
 }
 
+/// @brief Get or create the main UI container
+/// @param void
+/// @return lv_obj_t* Pointer to the initialized main UI container object.
 lv_obj_t *ui_get_main_container(void) {
     if (main_ui_container == NULL) {
         ESP_LOGI(TAG, "Create main container");
@@ -104,6 +107,9 @@ lv_obj_t *ui_get_main_container(void) {
     return main_ui_container;
 }
 
+/// @brief Return a label which print app name and version
+/// @param void
+/// @return void
 void ui_display_app_name_and_version(void) {
     ESP_LOGI(TAG, "Displaying app name & version...");
 

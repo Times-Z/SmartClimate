@@ -12,6 +12,7 @@ static const char *TAG = "LVGL";
 
 lv_display_t *disp;
 
+// custom lvgl memory management
 void *lv_malloc_core(size_t size) { return heap_caps_malloc(size, MALLOC_CAP_DMA); }
 
 void lv_free_core(void *ptr) { heap_caps_free(ptr); }
@@ -58,6 +59,9 @@ void lvgl_port_update_callback(lv_display_t *disp) {
     }
 }
 
+/// @brief Init lvgl lib
+/// @param void
+/// @return void
 void lvgl_init(void) {
     ESP_LOGI(TAG, "Initialize LVGL library");
     lv_init();

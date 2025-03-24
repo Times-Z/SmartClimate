@@ -10,9 +10,6 @@
 static const char *TAG = "API";
 extern bool should_save_credentials;
 
-/// @brief Check lifesign of ESP32
-/// @param req httpd_req_t
-/// @return esp_err_t
 static esp_err_t status_handler(httpd_req_t *req) {
     uint32_t free_heap = esp_get_free_heap_size();
 

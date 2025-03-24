@@ -7,11 +7,6 @@
 static const char *TAG = "HTTP_SERVER";
 extern const char *SPIFFS_MOUNTPOINT;
 
-/// @brief Serve a file from the SPIFFS filesystem
-/// @param req httpd_req_t
-/// @param file_path const char*
-/// @param content_type const char*
-/// @return esp_err_t
 static esp_err_t serve_file(httpd_req_t *req, const char *file_path, const char *content_type) {
     FILE *file = fopen(file_path, "r");
     if (file == NULL) {
@@ -34,9 +29,6 @@ static esp_err_t serve_file(httpd_req_t *req, const char *file_path, const char 
     return httpd_resp_send_chunk(req, NULL, 0);
 }
 
-/// @brief Return the content type
-/// @param path file path
-/// @return char content type header
 static const char *get_content_type(const char *path) {
     if (strstr(path, ".html")) return "text/html";
     if (strstr(path, ".css")) return "text/css";
@@ -46,9 +38,6 @@ static const char *get_content_type(const char *path) {
     return "text/plain";
 }
 
-/// @brief Static files handler
-/// @param req httpd_req_t
-/// @return esp_err_t
 static esp_err_t static_file_handler(httpd_req_t *req) {
     char full_path[256];
     strlcpy(full_path, SPIFFS_MOUNTPOINT, sizeof(full_path));
@@ -63,7 +52,6 @@ static esp_err_t static_file_handler(httpd_req_t *req) {
     return serve_file(req, full_path, ctype);
 }
 
-// Handler pour la redirection de connectivité (captive portal).
 static esp_err_t connectivity_check(httpd_req_t *req) {
     httpd_resp_set_hdr(req, "Location", "http://smartclimate/index.html");
     httpd_resp_set_status(req, "301 Moved Permanently");
@@ -71,10 +59,6 @@ static esp_err_t connectivity_check(httpd_req_t *req) {
     return status;
 }
 
-/// @brief Default request handler for undefined URIs
-/// @param req httpd_req_t
-/// @param err httpd_err_code_t
-/// @return esp_err_t
 static esp_err_t default_handler(httpd_req_t *req, httpd_err_code_t err) {
     ESP_LOGW(TAG, "Undefined URI requested: %s | Error code: %d", req->uri, err);
     const char resp[] = "404 Not Found";

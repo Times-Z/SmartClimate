@@ -61,6 +61,9 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t e
     }
 }
 
+/// @brief Start the wifi in Access Point mode
+/// @param void
+/// @return void
 void wifi_start_ap(void) {
     if (ap_netif != NULL) {
         esp_netif_dhcps_stop(ap_netif);
@@ -120,13 +123,17 @@ void wifi_start_ap(void) {
     ui_show_wifi_ap_qr((char *)ap_config.ap.ssid, (char *)ap_config.ap.password);
 }
 
+/// @brief Start the wifi in Station mode
+/// @param char ssid
+/// @param char password
+/// @return bool true if connected, false otherwise
 bool wifi_start_sta(const char *ssid, const char *password) {
     if (!ssid || !password || strlen(ssid) == 0 || strlen(password) == 0) {
         ESP_LOGE(TAG, "Invalid ssid/password provided.");
         return false;
     }
 
-    esp_wifi_stop();  // Safe car déjà init dans wifi_init()
+    esp_wifi_stop();
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
     ESP_ERROR_CHECK(esp_wifi_start());
 
@@ -175,10 +182,10 @@ void wifi_init(void) {
     }
 }
 
-/// @brief perform Wi-Fi scan and directly retrieve the results.
-/// @param results Pointer to store the AP scan results.
-/// @param ap_count Pointer to store the number of APs found.
-/// @return esp_err_t ESP_OK on success or appropriate error code.
+/// @brief perform Wi-Fi scan and directly retrieve the results
+/// @param results Pointer to store the AP scan results
+/// @param ap_count Pointer to store the number of APs found
+/// @return esp_err_t ESP_OK on success or appropriate error code
 esp_err_t wifi_scan_networks(wifi_ap_record_t **results, uint16_t *ap_count) {
     wifi_scan_config_t scan_conf = {.ssid = NULL, .bssid = NULL, .channel = 0, .show_hidden = true};
 
