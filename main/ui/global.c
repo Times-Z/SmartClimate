@@ -60,6 +60,18 @@ static void cat_idle_anim_cb(lv_timer_t *timer) {
     lv_timer_set_period(cat_timer, random_delay);
 }
 
+void ui_clear_screen(void) {
+    lv_obj_t *screen = lv_scr_act();
+    lv_obj_clean(screen);
+}
+
+void ui_clear_main_container(void) {
+    lv_obj_t *container = ui_get_main_container();
+    if (container != NULL) {
+        lv_obj_clean(container);
+    }
+}
+
 void ui_show_idle_cat_animation(void) {
     lv_obj_t *container = ui_get_main_container();
 
@@ -107,13 +119,13 @@ lv_obj_t *ui_get_main_container(void) {
     return main_ui_container;
 }
 
-/// @brief Return a label which print app name and version
+/// @brief Show labels with app name and version
 /// @param void
 /// @return void
-void ui_display_app_name_and_version(void) {
+void ui_show_app_name_and_version(void) {
     ESP_LOGI(TAG, "Displaying app name & version...");
 
-    static lv_obj_t *app_label = NULL;
+    lv_obj_t *app_label = NULL;
 
     if (app_label == NULL) {
         lv_obj_t *container = ui_get_main_container();
@@ -124,4 +136,40 @@ void ui_display_app_name_and_version(void) {
     }
 
     lv_label_set_text_fmt(app_label, "%s\nversion %s", APP_NAME, APP_VERSION);
+}
+
+/// @brief show a centerd spinner (for loading)
+/// @param void
+// @return void
+void ui_show_loader_spinner(void) {
+    lv_obj_t *container = ui_get_main_container();
+    lv_obj_clear_flag(container, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_set_flex_flow(container, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_flex_align(container, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+
+    lv_obj_t *spinner = lv_spinner_create(container);
+    lv_obj_set_size(spinner, UI_MAX_SIZE * 0.5, UI_MAX_SIZE * 0.5);
+
+    lv_obj_set_style_arc_color(spinner, lv_color_black(), LV_PART_INDICATOR);
+    lv_obj_set_style_arc_width(spinner, UI_MAX_SIZE * 0.05, LV_PART_INDICATOR);
+
+    lv_obj_set_style_arc_opa(spinner, LV_OPA_TRANSP, LV_PART_MAIN);
+    lv_obj_set_style_border_width(spinner, 0, LV_PART_MAIN);
+    lv_obj_set_style_bg_opa(spinner, LV_OPA_TRANSP, LV_PART_MAIN);
+}
+
+/// @brief show the desired message
+/// @param char message_string
+/// @return void
+void ui_show_message(char *message_string) {
+    ESP_LOGI(TAG, "Displaying %s", message_string);
+
+    lv_obj_t *label = NULL;
+    lv_obj_t *container = ui_get_main_container();
+    label = lv_label_create(container);
+    lv_obj_set_style_text_color(label, lv_color_black(), 0);
+    lv_obj_set_width(label, lv_disp_get_hor_res(NULL));
+    lv_label_set_long_mode(label, LV_LABEL_LONG_WRAP);
+
+    lv_label_set_text_fmt(label, "%s", message_string);
 }

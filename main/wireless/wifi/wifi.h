@@ -13,6 +13,8 @@
 #include "../storage/nvs/nvs.h"
 
 extern bool should_save_credentials;
+extern esp_netif_t *ap_netif;
+extern esp_netif_t *sta_netif;
 
 void wifi_init(void);
 void wifi_start_ap(void);

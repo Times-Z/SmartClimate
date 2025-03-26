@@ -1,6 +1,7 @@
 #include <time_sync.h>
 
 static const char *TAG = "TIME_SYNC";
+static int NTP_SYNC_TIMEOUT = 30;
 
 /// @brief init system datetime with compiled time
 /// @param void
@@ -64,4 +65,46 @@ void time_init_from_compile(void) {
         datetime_str[strcspn(datetime_str, "\n")] = '\0';
         ESP_LOGI(TAG, "Initialized datetime : %s", datetime_str);
     }
+}
+
+/// @brief sync time with ntp server
+/// @param char ntp_domain the ntp domain
+/// @return bool true if change is ok, false otherwise
+bool time_sync_with_ntp(const char *ntp_domain) {
+    if (ntp_domain == NULL) {
+        ESP_LOGE(TAG, "NTP domain cannot be NULL.");
+        return false;
+    }
+
+    sntp_stop();
+
+    ESP_LOGI(TAG, "Starting time sync with NTP server : %s", ntp_domain);
+
+    sntp_setoperatingmode(SNTP_OPMODE_POLL);
+    sntp_setservername(0, ntp_domain);
+    sntp_init();
+
+    time_t now = 0;
+    struct tm timeinfo = {0};
+    int retry = 0;
+
+    while (retry < NTP_SYNC_TIMEOUT) {
+        time(&now);
+        localtime_r(&now, &timeinfo);
+
+        if (timeinfo.tm_year >= (2020 - 1900)) {
+            char datetime_str[26];
+            strncpy(datetime_str, asctime(&timeinfo), sizeof(datetime_str) - 1);
+            datetime_str[strcspn(datetime_str, "\n")] = '\0';
+            ESP_LOGI(TAG, "Time synchronized successfully : %s", datetime_str);
+            return true;
+        }
+
+        ESP_LOGW(TAG, "Waiting for NTP sync... (%d/%d)", retry + 1, NTP_SYNC_TIMEOUT);
+        vTaskDelay(pdMS_TO_TICKS(1000));
+        retry++;
+    }
+
+    ESP_LOGE(TAG, "Failed to sync time with NTP server: %s", ntp_domain);
+    return false;
 }

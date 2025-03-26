@@ -3,21 +3,31 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Setup SmartClimate</title>
+    <title>SmartClimate Control</title>
     <link rel="stylesheet" href="css/milligram.min.css" />
     <link rel="stylesheet" href="css/style.css" />
   </head>
   <body>
     <header>
-      <h1>SmartClimate Setup</h1>
+      <h1>SmartClimate Control</h1>
     </header>
 
     <main>
-      <p>Check system status and scan for available Wi-Fi networks.</p>
-      <button id="api-status-btn">ESP Status</button>
-      <button id="wifi-scan-btn">Scan Wi-Fi</button>
-      <div id="loader" class="spinner" style="display: none"></div>
-      <div id="output"></div>
+      <div class="dashboard">
+        <section id="status-section" class="container">
+          <h2>System Status</h2>
+          <button id="api-status-btn">Refresh Status</button>
+          <div id="status-loader" class="loader"></div>
+          <div id="status-output" class="output-container"></div>
+        </section>
+
+        <section id="wifi-section" class="container">
+          <h2>Wi-Fi Management</h2>
+          <button id="wifi-scan-btn">Scan Wi-Fi</button>
+          <div id="wifi-loader" class="loader"></div>
+          <div id="wifi-output" class="output-container"></div>
+        </section>
+      </div>
     </main>
 
     <footer>

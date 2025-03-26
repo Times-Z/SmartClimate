@@ -63,5 +63,5 @@ void _rgb_example(void *arg) {
 }
 void rgb_example(void) {
     // RGB
-    xTaskCreatePinnedToCore(_rgb_example, "RGB Demo", 4096, NULL, 4, NULL, 0);
+    xTaskCreatePinnedToCore(_rgb_example, "RGB Demo", 512, NULL, 4, NULL, 0);
 }

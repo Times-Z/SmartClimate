@@ -16,7 +16,8 @@
     "thread": "c",
     "chrono": "c",
     "*.obj": "c",
-    "functional": "c"
+    "functional": "c",
+    "system_error": "c"
   },
   "C_Cpp.errorSquiggles": "enabled",
   "C_Cpp.clang_format_fallbackStyle": "Google",

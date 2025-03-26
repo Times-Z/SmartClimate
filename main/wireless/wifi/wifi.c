@@ -11,8 +11,8 @@ static const char *AP_PASSWORD = "$tr0ngWifi";
 static const char *TAG = "WIFI";
 static int s_retry_num = 0;
 static wifi_ap_record_t ap_records[MAX_APs];
-static esp_netif_t *ap_netif = NULL;
-static esp_netif_t *sta_netif = NULL;
+esp_netif_t *ap_netif = NULL;
+esp_netif_t *sta_netif = NULL;
 bool should_save_credentials = false;
 
 static char pending_ssid[33] = {0};
@@ -38,14 +38,17 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t e
             wifi_start_ap();
         }
     } else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
+        captive_portal_stop_dns_server();
+
         ip_event_got_ip_t *event = (ip_event_got_ip_t *)event_data;
         char ip_str[16];
         snprintf(ip_str, sizeof(ip_str), IPSTR, IP2STR(&event->ip_info.ip));
 
         ESP_LOGI(TAG, "Connected successfully with IP : %s", ip_str);
 
-        ui_display_app_name_and_version();
-        ui_display_ip(ip_str);
+        ui_clear_main_container();
+        ui_show_app_name_and_version();
+        ui_show_ip(ip_str);
         ui_show_idle_cat_animation();
 
         if (should_save_credentials && strlen(pending_ssid) > 0 && strlen(pending_password) > 0) {
@@ -120,6 +123,10 @@ void wifi_start_ap(void) {
     captive_portal_start_dns_server();
 
     ESP_LOGI(TAG, "Static IP configured: %s", ip_to_str(&ip_info.ip));
+
+    // Screen
+    ui_clear_main_container();
+    ui_show_app_name_and_version();
     ui_show_wifi_ap_qr((char *)ap_config.ap.ssid, (char *)ap_config.ap.password);
 }
 
@@ -128,6 +135,9 @@ void wifi_start_ap(void) {
 /// @param char password
 /// @return bool true if connected, false otherwise
 bool wifi_start_sta(const char *ssid, const char *password) {
+    ui_clear_main_container();
+    ui_show_loader_spinner();
+
     if (!ssid || !password || strlen(ssid) == 0 || strlen(password) == 0) {
         ESP_LOGE(TAG, "Invalid ssid/password provided.");
         return false;
@@ -140,6 +150,9 @@ bool wifi_start_sta(const char *ssid, const char *password) {
     wifi_config_t wifi_config = {0};
     strncpy((char *)wifi_config.sta.ssid, ssid, sizeof(wifi_config.sta.ssid));
     strncpy((char *)wifi_config.sta.password, password, sizeof(wifi_config.sta.password));
+    wifi_config.sta.listen_interval = 10;
+    esp_wifi_set_protocol(ESP_IF_WIFI_STA, WIFI_PROTOCOL_11B | WIFI_PROTOCOL_11G | WIFI_PROTOCOL_11N);
+    esp_wifi_set_max_tx_power(16);
 
     ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config));
     esp_wifi_connect();

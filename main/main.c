@@ -10,6 +10,7 @@
 #include "wireless.h"
 #include "log.h"
 #include "webserver.h"
+#include "ui/global.h"
 
 static const char *TAG = "MAIN";
 const char *APP_NAME;
@@ -38,6 +39,9 @@ void initialize_components(void) {
     lcd_init();
     backlight_brightness(100);
     lvgl_init();
+
+    ui_clear_main_container();
+    ui_show_message("Starting...");
 
     if (wireless_Init() != true) {
         ESP_LOGE(TAG, "wireless initialization failed. Restarting...");

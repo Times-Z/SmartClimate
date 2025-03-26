@@ -75,10 +75,17 @@ static esp_err_t default_handler(httpd_req_t *req, httpd_err_code_t err) {
 httpd_handle_t webserver_start(void) {
     httpd_handle_t server = NULL;
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
-    config.stack_size = 8192;
+
+    // Optimized configuration
+    config.stack_size = 3072;
+    config.max_open_sockets = 5;
     config.lru_purge_enable = true;
+    config.recv_wait_timeout = 2;
+    config.send_wait_timeout = 2;
+    config.keep_alive_enable = false;
     config.max_uri_handlers = 50;
     config.uri_match_fn = httpd_uri_match_wildcard;
+    config.max_resp_headers = 5;
 
     ESP_LOGI(TAG, "Webserver starting on port: %d", config.server_port);
     if (httpd_start(&server, &config) == ESP_OK) {
