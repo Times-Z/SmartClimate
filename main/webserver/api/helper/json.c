@@ -84,6 +84,6 @@ char *build_json_safe(int count, const json_entry_t *entries) {
         return NULL;
     }
 
-    ESP_LOGI(TAG, "Generated JSON: %s", json_str);
+    ESP_LOGI(TAG, "Generated JSON : %s", json_str);
     return json_str;
 }
