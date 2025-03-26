@@ -90,10 +90,10 @@ SmartClimate uses a custom partition table tailored for persistent storage, appl
 - [x] Uptime tracking (seconds to days format)
 - [x] Lightweight JSON API for system status and configuration
 - [x] Graphical user interface built with LVGL
+- [x] NTP-based time synchronization
 
 ## Roadmap
 
-- [ ] NTP-based time synchronization
 - [ ] UI theming & styling system
 - [ ] Internationalization (i18n) support
 - [ ] Better error feedback on failed Wi-Fi connection

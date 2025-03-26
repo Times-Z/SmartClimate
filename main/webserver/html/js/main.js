@@ -6,6 +6,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const wifiOutput = document.getElementById("wifi-output");
   const statusLoader = document.getElementById("status-loader");
   const wifiLoader = document.getElementById("wifi-loader");
+  const ntpInput = document.getElementById("ntp-input");
+  const ntpOutput = document.getElementById("ntp-output");
+  const ntpLoader = document.getElementById("ntp-loader");
+  const ntpSetBtn = document.getElementById("ntp-set-btn");
 
   const showLoader = (loader) => {
     loader.style.display = "block";
@@ -13,6 +17,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const hideLoader = (loader) => {
     loader.style.display = "none";
+  };
+
+  const disableButton = (button) => {
+    button.disabled = true;
+    button.style.opacity = "0.6";
+    button.innerText = "Loading...";
+  };
+
+  const enableButton = (button, originalText) => {
+    button.disabled = false;
+    button.style.opacity = "1";
+    button.innerText = originalText;
   };
 
   const showOutput = (section, html, loader) => {
@@ -23,9 +39,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const handleApi = (url, formatter, outputSection, button, loader) => {
     showLoader(loader);
     outputSection.innerHTML = "";
-    button.disabled = true;
-    button.style.opacity = "0.6";
-    button.innerText = "Loading...";
+    disableButton(button);
 
     fetch(url)
       .then((res) => res.json())
@@ -44,9 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
       })
       .finally(() => {
         hideLoader(loader);
-        button.disabled = false;
-        button.style.opacity = "1";
-        button.innerText = button.dataset.originalText;
+        enableButton(button, button.dataset.originalText);
       });
   };
 
@@ -93,6 +105,38 @@ document.addEventListener("DOMContentLoaded", () => {
           .join("")}
       </div>
     `;
+  };
+
+  const handleNtpUpdate = () => {
+    const ntpDomain = ntpInput.value.trim();
+    if (!ntpDomain) {
+      ntpOutput.innerHTML = `<p style="color: var(--error-color);">⚠️ Please enter an NTP server domain.</p>`;
+      return;
+    }
+
+    disableButton(ntpSetBtn);
+    showLoader(ntpLoader);
+    ntpOutput.innerHTML = "";
+
+    fetch("/api/v1/ntp/set", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ntp_domain: ntpDomain }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (!data || data.success === false) {
+          throw new Error(data.message || "Unknown error");
+        }
+        ntpOutput.innerHTML = `<p style="color: #4CAF50;">✅ NTP server updated successfully to <strong>${ntpDomain}</strong></p>`;
+      })
+      .catch((err) => {
+        ntpOutput.innerHTML = `<p style="color: var(--error-color);">⚠️ ${err.message}</p>`;
+      })
+      .finally(() => {
+        hideLoader(ntpLoader);
+        enableButton(ntpSetBtn, "Set NTP Server");
+      });
   };
 
   document.addEventListener("click", (e) => {
@@ -147,4 +191,7 @@ document.addEventListener("DOMContentLoaded", () => {
       wifiBtn,
       wifiLoader
     );
+
+  ntpSetBtn.dataset.originalText = ntpSetBtn.innerText;
+  ntpSetBtn.onclick = handleNtpUpdate;
 });
