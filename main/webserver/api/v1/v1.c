@@ -26,6 +26,7 @@ esp_err_t status_handler(httpd_req_t *req) {
     json_entry_t entries[] = {{"status", JSON_TYPE_STRING, "ok"},
                               {"sys_timestamp", JSON_TYPE_NUMBER, &now},
                               {"ip", JSON_TYPE_STRING, wifi_get_current_ip_str()},
+                              {"main_dns", JSON_TYPE_STRING, wifi_get_current_dns_str()},
                               {"free_heap", JSON_TYPE_STRING, free_heap_str},
                               {"uptime", JSON_TYPE_STRING, uptime_str}};
 
@@ -91,7 +92,7 @@ esp_err_t wifi_scan_handler(httpd_req_t *req) {
         {"success", JSON_TYPE_BOOL, &(int){1}},
         {"networks", JSON_TYPE_RAW, networks_json},
     };
-    char *json_response = build_json_safe(2, final_json);
+    char *json_response = build_json_safe(JSON_ARRAY_SIZE(final_json), final_json);
 
     free(networks_json);
     ap_records = NULL;

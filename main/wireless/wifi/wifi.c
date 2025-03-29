@@ -251,12 +251,36 @@ const char *wifi_resolve_domain(char *domain_name) {
 /// @return NULL|char ip
 const char *wifi_get_current_ip_str(void) {
     static char ip_str[INET_ADDRSTRLEN] = "0.0.0.0";
+    esp_netif_t *netifs[] = {sta_netif, ap_netif};
 
-    if (sta_netif) {
-        esp_netif_ip_info_t ip_info;
-        if (esp_netif_get_ip_info(sta_netif, &ip_info) == ESP_OK && ip_info.ip.addr != 0) {
-            snprintf(ip_str, sizeof(ip_str), IPSTR, IP2STR(&ip_info.ip));
-            return ip_str;
+    for (int i = 0; i < sizeof(netifs) / sizeof(netifs[0]); ++i) {
+        if (netifs[i] && esp_netif_is_netif_up(netifs[i])) {
+            esp_netif_ip_info_t ip_info;
+            if (esp_netif_get_ip_info(netifs[i], &ip_info) == ESP_OK && ip_info.ip.addr != 0) {
+                snprintf(ip_str, sizeof(ip_str), IPSTR, IP2STR(&ip_info.ip));
+                return ip_str;
+            }
+        }
+    }
+
+    return NULL;
+}
+
+/// @brief return the current main dns as a string
+/// @param void
+/// @return NULL|char main dns
+const char *wifi_get_current_dns_str(void) {
+    static char dns_str[INET_ADDRSTRLEN] = "0.0.0.0";
+    esp_netif_t *netifs[] = {sta_netif, ap_netif};
+    esp_netif_dns_info_t dns_info;
+
+    for (int i = 0; i < sizeof(netifs) / sizeof(netifs[0]); ++i) {
+        if (netifs[i] && esp_netif_is_netif_up(netifs[i])) {
+            if (esp_netif_get_dns_info(netifs[i], ESP_NETIF_DNS_MAIN, &dns_info) == ESP_OK &&
+                dns_info.ip.type == IPADDR_TYPE_V4 && dns_info.ip.u_addr.ip4.addr != 0) {
+                snprintf(dns_str, sizeof(dns_str), IPSTR, IP2STR(&dns_info.ip.u_addr.ip4));
+                return dns_str;
+            }
         }
     }
 

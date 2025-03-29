@@ -28,7 +28,7 @@ void time_init(void) {
         ESP_LOGI(TAG, "No NTP server configured, using build time fallback");
     }
 
-    // time_sync_from_build();
+    time_sync_from_build();
 }
 
 /// @brief Sync system datetime with build informations

@@ -26,3 +26,4 @@ uint16_t wifi_get_scan_results(wifi_ap_record_t **results);
 bool wifi_start_sta(const char *ssid, const char *password);
 const char *wifi_resolve_domain(char *domain_name);
 const char *wifi_get_current_ip_str(void);
+const char *wifi_get_current_dns_str(void);

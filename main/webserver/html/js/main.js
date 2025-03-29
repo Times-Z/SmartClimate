@@ -71,8 +71,9 @@ document.addEventListener("DOMContentLoaded", () => {
         <li><strong>Status:</strong> ${data.status}</li>
         <li><strong>System Time:</strong> ${formattedDate}</li>
         <li><strong>IP Address:</strong> ${data.ip}</li>
+        <li><strong>Main DNS :</strong> ${data.main_dns}</li>
         <li><strong>Uptime:</strong> ${data.uptime}</li>
-        <li><strong>Free Heap:</strong> ${data.free_heap} KB</li>
+        <li><strong>Free Heap:</strong> ${data.free_heap}</li>
       </ul>
     `;
   };
