@@ -20,25 +20,12 @@ esp_err_t status_handler(httpd_req_t *req) {
     char uptime_str[64];
     snprintf(uptime_str, sizeof(uptime_str), "%dd %02dh %02dm %02ds", days, hours, minutes, seconds);
 
-    esp_netif_ip_info_t ip_info;
-    char ip_str[INET_ADDRSTRLEN] = "unknown";
-
-    if (ap_netif == NULL) {
-        if (sta_netif && esp_netif_get_ip_info(sta_netif, &ip_info) == ESP_OK) {
-            snprintf(ip_str, sizeof(ip_str), IPSTR, IP2STR(&ip_info.ip));
-        }
-    } else {
-        if (ap_netif && esp_netif_get_ip_info(ap_netif, &ip_info) == ESP_OK) {
-            snprintf(ip_str, sizeof(ip_str), IPSTR, IP2STR(&ip_info.ip));
-        }
-    }
-
     time_t now;
     time(&now);
 
     json_entry_t entries[] = {{"status", JSON_TYPE_STRING, "ok"},
                               {"sys_timestamp", JSON_TYPE_NUMBER, &now},
-                              {"ip", JSON_TYPE_STRING, ip_str},
+                              {"ip", JSON_TYPE_STRING, wifi_get_current_ip_str()},
                               {"free_heap", JSON_TYPE_STRING, free_heap_str},
                               {"uptime", JSON_TYPE_STRING, uptime_str}};
 

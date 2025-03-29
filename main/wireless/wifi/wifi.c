@@ -40,10 +40,7 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t e
     } else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
         captive_portal_stop_dns_server();
 
-        ip_event_got_ip_t *event = (ip_event_got_ip_t *)event_data;
-        char ip_str[16];
-        snprintf(ip_str, sizeof(ip_str), IPSTR, IP2STR(&event->ip_info.ip));
-
+        const char *ip_str = wifi_get_current_ip_str();
         ESP_LOGI(TAG, "Connected successfully with IP : %s", ip_str);
 
         ui_clear_main_container();
@@ -247,4 +244,21 @@ const char *wifi_resolve_domain(char *domain_name) {
         ESP_LOGW(TAG, "No IPs returned for %s", domain_name);
         return NULL;
     }
+}
+
+/// @brief Return the current ip as a string or NULL
+/// @param void
+/// @return NULL|char ip
+const char *wifi_get_current_ip_str(void) {
+    static char ip_str[INET_ADDRSTRLEN] = "0.0.0.0";
+
+    if (sta_netif) {
+        esp_netif_ip_info_t ip_info;
+        if (esp_netif_get_ip_info(sta_netif, &ip_info) == ESP_OK && ip_info.ip.addr != 0) {
+            snprintf(ip_str, sizeof(ip_str), IPSTR, IP2STR(&ip_info.ip));
+            return ip_str;
+        }
+    }
+
+    return NULL;
 }
