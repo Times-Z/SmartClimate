@@ -25,8 +25,6 @@ void initialize_components(void) {
         esp_restart();
     }
 
-    time_init_from_compile();
-
     if (storage_init() != true) {
         ESP_LOGE(TAG, "storage init failed. Stopping...");
         vTaskDelay(pdMS_TO_TICKS(1000));
@@ -47,6 +45,8 @@ void initialize_components(void) {
         ESP_LOGE(TAG, "wireless initialization failed. Restarting...");
         esp_restart();
     }
+
+    time_init();
 
     webserver_start();
 }

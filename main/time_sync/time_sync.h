@@ -2,7 +2,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <esp_log.h>
-#include <lwip/apps/sntp.h>
+#include <esp_sntp.h>
+#include "nvs.h"
 
-void time_init_from_compile(void);
+void time_init();
+void time_sync_from_build(void);
 bool time_sync_with_ntp(const char *ntp_domain);

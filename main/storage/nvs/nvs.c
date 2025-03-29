@@ -108,3 +108,31 @@ bool nvs_clear_wifi_credentials(void) {
     ESP_LOGI(TAG, "Wi-Fi credentials cleared from NVS");
     return true;
 }
+
+/// @brief save ntp domain
+/// @param char ntp_domain the ntp domain
+/// @return bool true if saved, false otherwise
+bool nvs_save_ntp_information(const char *ntp_domain) {
+    nvs_handle_t handle;
+    esp_err_t err = nvs_open("ntp", NVS_READWRITE, &handle);
+    if (err != ESP_OK) return false;
+
+    err |= nvs_set_str(handle, "domain", ntp_domain);
+    err |= nvs_commit(handle);
+    nvs_close(handle);
+    return err == ESP_OK;
+}
+
+/// @brief Load ntp domain from NVS
+/// @param domain_out Pointer to the buffer where the domain will be stored
+/// @param domain_size pointer size
+/// @return bool true if ntp domain can be received, false otherwhise
+bool nvs_load_ntp_information(char *domain_out, size_t domain_size) {
+    nvs_handle_t handle;
+    esp_err_t err = nvs_open("ntp", NVS_READONLY, &handle);
+    if (err != ESP_OK) return false;
+
+    err |= nvs_get_str(handle, "domain", domain_out, &domain_size);
+    nvs_close(handle);
+    return err == ESP_OK;
+}

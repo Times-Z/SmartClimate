@@ -159,6 +159,12 @@ bool wifi_start_sta(const char *ssid, const char *password) {
 
     ESP_LOGI(TAG, "Connecting to Wi-Fi SSID: %s", ssid);
 
+    esp_netif_dns_info_t dns_info = {.ip = {
+                                         .type = IPADDR_TYPE_V4,
+                                         .u_addr.ip4.addr = ipaddr_addr("8.8.8.8"),
+                                     }};
+    ESP_ERROR_CHECK(esp_netif_set_dns_info(sta_netif, ESP_NETIF_DNS_MAIN, &dns_info));
+
     strncpy(pending_ssid, ssid, sizeof(pending_ssid));
     strncpy(pending_password, password, sizeof(pending_password));
 
@@ -221,4 +227,24 @@ esp_err_t wifi_scan_networks(wifi_ap_record_t **results, uint16_t *ap_count) {
     *results = ap_records;
 
     return ESP_OK;
+}
+
+/// @brief return string ip for a domain name
+/// @param char domain_name
+/// @return NULL|char the ip or null if resolution fail
+const char *wifi_resolve_domain(char *domain_name) {
+    struct hostent *he = gethostbyname(domain_name);
+    if (he == NULL) {
+        ESP_LOGE(TAG, "DNS resolution failed for %s", domain_name);
+        return NULL;
+    }
+
+    struct in_addr **addr_list = (struct in_addr **)he->h_addr_list;
+    if (addr_list[0] != NULL) {
+        ESP_LOGI(TAG, "%s resolved to %s", domain_name, inet_ntoa(*addr_list[0]));
+        return inet_ntoa(*addr_list[0]);
+    } else {
+        ESP_LOGW(TAG, "No IPs returned for %s", domain_name);
+        return NULL;
+    }
 }
