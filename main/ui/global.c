@@ -173,3 +173,29 @@ void ui_show_message(char *message_string) {
 
     lv_label_set_text_fmt(label, "%s", message_string);
 }
+
+/// @brief Display a GIF
+/// @param const void *src - pointer to GIF file or C array
+/// @param int zoom_ratio - zoom ratio for the gif, 1 mean 100%, 2 mean 200% etc
+/// @return void
+void ui_show_gif(const void *src, uint32_t zoom_ratio) {
+    ESP_LOGI(TAG, "Displaying GIF...");
+
+    if (!src) {
+        ESP_LOGW(TAG, "GIF source is NULL");
+        return;
+    }
+
+    lv_obj_t *container = ui_get_main_container();
+
+    lv_obj_t *gif = lv_gif_create(container);
+
+    if (!gif) {
+        ESP_LOGE(TAG, "Failed to create lv_gif object");
+        return;
+    }
+
+    lv_obj_center(gif);
+    lv_image_set_scale(gif, 256 * zoom_ratio);
+    lv_gif_set_src(gif, src);
+}

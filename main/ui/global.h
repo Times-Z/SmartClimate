@@ -14,6 +14,7 @@ void ui_clear_main_container(void);
 void ui_show_app_name_and_version(void);
 void ui_show_message(char *message);
 void ui_show_loader_spinner(void);
+void ui_show_gif(const void *src, uint32_t zoom_ratio);
 
 // Wireless
 void ui_show_wifi_ap_qr(const char *ssid, const char *password);

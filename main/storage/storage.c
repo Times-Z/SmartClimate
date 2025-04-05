@@ -73,9 +73,9 @@ bool storage_has_extension(const char *path) {
 
 /// @brief Show tree of files and directories
 /// @param base_path The base path (ex. SD_MOUNT_POINT).
-/// @param indent The indentation level (to use recursively, start at 0).
+/// @param depth The depth level (to use recursively, start at 0).
 /// @return void
-void storage_list_tree(const char *base_path, int indent) {
+void storage_list_tree(const char *base_path, int depth) {
     DIR *dir = opendir(base_path);
     if (dir == NULL) {
         ESP_LOGE(STORAGE_TAG, "Impossible to open dir %s", base_path);
@@ -86,7 +86,7 @@ void storage_list_tree(const char *base_path, int indent) {
     while ((entry = readdir(dir)) != NULL) {
         if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) continue;
 
-        for (int i = 0; i < indent; i++) {
+        for (int i = 0; i < depth; i++) {
             printf("    ");
         }
         printf("├── %s\n", entry->d_name);
@@ -98,7 +98,7 @@ void storage_list_tree(const char *base_path, int indent) {
         strlcat(full_path, entry->d_name, sizeof(full_path));
 
         if (entry->d_type == DT_DIR) {
-            storage_list_tree(full_path, indent + 1);
+            storage_list_tree(full_path, depth + 1);
         }
     }
     closedir(dir);

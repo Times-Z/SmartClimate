@@ -11,10 +11,12 @@
 #include <string.h>
 
 extern lv_display_t *disp;
+
 void *lv_malloc_core(size_t size);
 void lv_free_core(void *ptr);
 void *lv_realloc_core(void *ptr, size_t new_size);
 void lv_mem_init(void);
+void lvgl_fs_register_sdcard(void);
 
 void lvgl_flush_cb(lv_display_t *disp, const lv_area_t *area, uint8_t *px_map);
 void lvgl_port_update_callback(lv_display_t *disp);

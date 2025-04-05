@@ -49,6 +49,8 @@ void initialize_components(void) {
     time_init();
 
     webserver_start();
+
+    storage_list_tree(SD_MOUNT_POINT, 0);
 }
 
 void app_main(void) {
