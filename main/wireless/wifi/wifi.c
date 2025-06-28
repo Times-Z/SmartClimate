@@ -46,7 +46,7 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t e
         ui_clear_main_container();
         ui_show_app_name_and_version();
         ui_show_ip(ip_str);
-        ui_show_idle_cat_animation();
+        ui_show_gif("S:/gif/cat.gif", 1);
 
         if (should_save_credentials && strlen(pending_ssid) > 0 && strlen(pending_password) > 0) {
             nvs_save_wifi_credentials(pending_ssid, pending_password);

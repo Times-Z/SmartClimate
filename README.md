@@ -2,6 +2,8 @@
 
 SmartClimate is an IoT-based weather monitoring and smart device tracking system using the ESP32-C6 microcontroller with an ST7789 172×320 TFT display. This project provides real-time environmental data and smart home device status, making it an efficient tool for monitoring climate conditions and IoT devices.
 
+<img src="./.assets/01.jpg" style="display: block; margin: auto;" />
+
 ## Prerequisites
 
 Before setting up SmartClimate, ensure you have the following installed:
