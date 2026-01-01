@@ -78,9 +78,10 @@ Then configure ESP-IDF following the [official guide](https://docs.espressif.com
 
 ### Required components
 
-| Component           | Model   |
-| ------------------- | ------- |
-| **Microcontroller** | ESP32c6 |
+| Component           | Model              |
+| ------------------- | ------------------ |
+| **Microcontroller** | ESP32c6            |
+| **Screen**          | ST7789 172×320 TFT |
 
 ---
 
