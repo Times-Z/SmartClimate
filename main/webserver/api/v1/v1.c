@@ -1,6 +1,6 @@
 #include "v1.h"
 
-esp_err_t status_handler(httpd_req_t *req) {
+esp_err_t status_handler(httpd_req_t* req) {
     uint32_t free_heap = esp_get_free_heap_size();
 
     int64_t uptime_us = esp_timer_get_time();
@@ -30,7 +30,7 @@ esp_err_t status_handler(httpd_req_t *req) {
                               {"free_heap", JSON_TYPE_STRING, free_heap_str},
                               {"uptime", JSON_TYPE_STRING, uptime_str}};
 
-    char *json_response = build_json_safe(JSON_ARRAY_SIZE(entries), entries);
+    char* json_response = build_json_safe(JSON_ARRAY_SIZE(entries), entries);
 
     httpd_resp_set_type(req, "application/json");
     httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
@@ -39,8 +39,8 @@ esp_err_t status_handler(httpd_req_t *req) {
     return status;
 }
 
-esp_err_t wifi_scan_handler(httpd_req_t *req) {
-    wifi_ap_record_t *ap_records = NULL;
+esp_err_t wifi_scan_handler(httpd_req_t* req) {
+    wifi_ap_record_t* ap_records = NULL;
     uint16_t ap_count = 0;
 
     httpd_resp_set_type(req, "application/json");
@@ -48,8 +48,8 @@ esp_err_t wifi_scan_handler(httpd_req_t *req) {
 
     esp_err_t err = wifi_scan_networks(&ap_records, &ap_count);
     if (err != ESP_OK || ap_records == NULL || ap_count == 0) {
-        const char *msg = "Wi-Fi scan failed";
-        const char *err_name = esp_err_to_name(err);
+        const char* msg = "Wi-Fi scan failed";
+        const char* err_name = esp_err_to_name(err);
 
         json_entry_t error_json[] = {
             {"success", JSON_TYPE_BOOL, &(int){0}},
@@ -57,14 +57,14 @@ esp_err_t wifi_scan_handler(httpd_req_t *req) {
             {"error", JSON_TYPE_STRING, err_name},
         };
 
-        char *json_response = build_json_safe(JSON_ARRAY_SIZE(error_json), error_json);
+        char* json_response = build_json_safe(JSON_ARRAY_SIZE(error_json), error_json);
 
         esp_err_t res = httpd_resp_send(req, json_response, HTTPD_RESP_USE_STRLEN);
         free(json_response);
         return res;
     }
 
-    char *networks_json = malloc(2048);
+    char* networks_json = malloc(2048);
 
     networks_json[0] = '[';
     networks_json[1] = '\0';
@@ -72,7 +72,7 @@ esp_err_t wifi_scan_handler(httpd_req_t *req) {
     for (int i = 0; i < ap_count; i++) {
         char ap_entry[256];
         char bssid_str[18];
-        const char *auth_str = authmode_to_str(ap_records[i].authmode);
+        const char* auth_str = authmode_to_str(ap_records[i].authmode);
 
         snprintf(bssid_str, sizeof(bssid_str), "%02X:%02X:%02X:%02X:%02X:%02X", ap_records[i].bssid[0],
                  ap_records[i].bssid[1], ap_records[i].bssid[2], ap_records[i].bssid[3], ap_records[i].bssid[4],
@@ -92,7 +92,7 @@ esp_err_t wifi_scan_handler(httpd_req_t *req) {
         {"success", JSON_TYPE_BOOL, &(int){1}},
         {"networks", JSON_TYPE_RAW, networks_json},
     };
-    char *json_response = build_json_safe(JSON_ARRAY_SIZE(final_json), final_json);
+    char* json_response = build_json_safe(JSON_ARRAY_SIZE(final_json), final_json);
 
     free(networks_json);
     ap_records = NULL;
@@ -102,7 +102,7 @@ esp_err_t wifi_scan_handler(httpd_req_t *req) {
     return res;
 }
 
-esp_err_t wifi_connect_handler(httpd_req_t *req) {
+esp_err_t wifi_connect_handler(httpd_req_t* req) {
     should_save_credentials = true;
     char buf[256];
     int ret = httpd_req_recv(req, buf, sizeof(buf) - 1);
@@ -116,7 +116,7 @@ esp_err_t wifi_connect_handler(httpd_req_t *req) {
             {"message", JSON_TYPE_STRING, "No body received"},
         };
 
-        char *json_response = build_json_safe(JSON_ARRAY_SIZE(json), json);
+        char* json_response = build_json_safe(JSON_ARRAY_SIZE(json), json);
 
         esp_err_t res = httpd_resp_send(req, json_response, HTTPD_RESP_USE_STRLEN);
         free(json_response);
@@ -128,8 +128,8 @@ esp_err_t wifi_connect_handler(httpd_req_t *req) {
     char ssid[33] = {0};
     char password[65] = {0};
 
-    char *ssid_ptr = strstr(buf, "\"ssid\"");
-    char *pass_ptr = strstr(buf, "\"password\"");
+    char* ssid_ptr = strstr(buf, "\"ssid\"");
+    char* pass_ptr = strstr(buf, "\"password\"");
 
     if (ssid_ptr) sscanf(ssid_ptr, "\"ssid\":\"%32[^\"]", ssid);
     if (pass_ptr) sscanf(pass_ptr, "\"password\":\"%64[^\"]", password);
@@ -140,7 +140,7 @@ esp_err_t wifi_connect_handler(httpd_req_t *req) {
             {"message", JSON_TYPE_STRING, "Missing or invalid SSID"},
         };
 
-        char *json_response = build_json_safe(JSON_ARRAY_SIZE(error_json), error_json);
+        char* json_response = build_json_safe(JSON_ARRAY_SIZE(error_json), error_json);
         esp_err_t res = httpd_resp_send(req, json_response, HTTPD_RESP_USE_STRLEN);
         free(json_response);
         return res;
@@ -152,7 +152,7 @@ esp_err_t wifi_connect_handler(httpd_req_t *req) {
             {"message", JSON_TYPE_STRING, "Failed to connect..."},
         };
 
-        char *json_response = build_json_safe(JSON_ARRAY_SIZE(json), json);
+        char* json_response = build_json_safe(JSON_ARRAY_SIZE(json), json);
 
         esp_err_t res = httpd_resp_send(req, json_response, HTTPD_RESP_USE_STRLEN);
         free(json_response);
@@ -166,13 +166,13 @@ esp_err_t wifi_connect_handler(httpd_req_t *req) {
                                        "Wi-Fi connection initiated",
                                    }};
 
-    char *json_response = build_json_safe(JSON_ARRAY_SIZE(success_json), success_json);
+    char* json_response = build_json_safe(JSON_ARRAY_SIZE(success_json), success_json);
     esp_err_t res = httpd_resp_send(req, json_response, HTTPD_RESP_USE_STRLEN);
     free(json_response);
     return res;
 }
 
-esp_err_t ntp_set_handler(httpd_req_t *req) {
+esp_err_t ntp_set_handler(httpd_req_t* req) {
     char buf[256];
     int ret = httpd_req_recv(req, buf, sizeof(buf) - 1);
 
@@ -185,7 +185,7 @@ esp_err_t ntp_set_handler(httpd_req_t *req) {
             {"message", JSON_TYPE_STRING, "No body received"},
         };
 
-        char *json_response = build_json_safe(JSON_ARRAY_SIZE(json), json);
+        char* json_response = build_json_safe(JSON_ARRAY_SIZE(json), json);
 
         esp_err_t res = httpd_resp_send(req, json_response, HTTPD_RESP_USE_STRLEN);
         free(json_response);
@@ -195,7 +195,7 @@ esp_err_t ntp_set_handler(httpd_req_t *req) {
     buf[ret] = '\0';
     char ntp_domain[33] = {0};
 
-    char *ntp_domain_ptr = strstr(buf, "\"ntp_domain\"");
+    char* ntp_domain_ptr = strstr(buf, "\"ntp_domain\"");
 
     if (ntp_domain_ptr) {
         ntp_domain_ptr = strchr(ntp_domain_ptr, ':');
@@ -214,7 +214,7 @@ esp_err_t ntp_set_handler(httpd_req_t *req) {
             {"message", JSON_TYPE_STRING, ntp_domain},
         };
 
-        char *json_response = build_json_safe(JSON_ARRAY_SIZE(error_json), error_json);
+        char* json_response = build_json_safe(JSON_ARRAY_SIZE(error_json), error_json);
         esp_err_t res = httpd_resp_send(req, json_response, HTTPD_RESP_USE_STRLEN);
         free(json_response);
         return res;
@@ -226,7 +226,7 @@ esp_err_t ntp_set_handler(httpd_req_t *req) {
             {"message", JSON_TYPE_STRING, "Failed to sync time with NTP"},
         };
 
-        char *json_response = build_json_safe(JSON_ARRAY_SIZE(json), json);
+        char* json_response = build_json_safe(JSON_ARRAY_SIZE(json), json);
 
         esp_err_t res = httpd_resp_send(req, json_response, HTTPD_RESP_USE_STRLEN);
         free(json_response);
@@ -240,8 +240,121 @@ esp_err_t ntp_set_handler(httpd_req_t *req) {
                                        "NTPS sync ok",
                                    }};
 
-    char *json_response = build_json_safe(JSON_ARRAY_SIZE(success_json), success_json);
+    char* json_response = build_json_safe(JSON_ARRAY_SIZE(success_json), success_json);
     esp_err_t res = httpd_resp_send(req, json_response, HTTPD_RESP_USE_STRLEN);
     free(json_response);
     return res;
+}
+
+esp_err_t logs_handler(httpd_req_t* req) {
+    char* logs = (char*)malloc(16384);
+    if (logs == NULL) {
+        httpd_resp_set_type(req, "application/json");
+        httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+
+        json_entry_t error_json[] = {
+            {"success", JSON_TYPE_BOOL, &(int){0}},
+            {"message", JSON_TYPE_STRING, "Memory allocation failed"},
+        };
+
+        char* json_response = build_json_safe(JSON_ARRAY_SIZE(error_json), error_json);
+        esp_err_t res = httpd_resp_send(req, json_response, HTTPD_RESP_USE_STRLEN);
+        free(json_response);
+        return res;
+    }
+
+    logs[0] = '\0';
+    size_t bytes_written = log_buffer_get(logs, 16384);
+
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+
+    if (bytes_written == 0 || logs[0] == '\0') {
+        json_entry_t success_json[] = {
+            {"success", JSON_TYPE_BOOL, &(int){1}},
+            {"log_lines", JSON_TYPE_RAW, "[]"},
+            {"total_lines", JSON_TYPE_NUMBER, &(int){0}},
+        };
+
+        char* json_response = build_json_safe(JSON_ARRAY_SIZE(success_json), success_json);
+        esp_err_t res = httpd_resp_send(req, json_response, HTTPD_RESP_USE_STRLEN);
+        free(json_response);
+        free(logs);
+        return res;
+    }
+
+    char* logs_json = (char*)malloc(16384);
+    if (logs_json == NULL) {
+        free(logs);
+        json_entry_t error_json[] = {
+            {"success", JSON_TYPE_BOOL, &(int){0}},
+            {"message", JSON_TYPE_STRING, "Memory allocation failed"},
+        };
+        char* json_response = build_json_safe(JSON_ARRAY_SIZE(error_json), error_json);
+        esp_err_t res = httpd_resp_send(req, json_response, HTTPD_RESP_USE_STRLEN);
+        free(json_response);
+        return res;
+    }
+
+    strcpy(logs_json, "[");
+    const char* start = logs;
+    bool first = true;
+    int line_count = 0;
+
+    for (const char* p = logs; *p != '\0'; p++) {
+        if (*p == '\n' || *(p + 1) == '\0') {
+            size_t line_len = (*p == '\n') ? (p - start) : (p + 1 - start);
+
+            if (line_len > 0) {
+                if (!first) {
+                    strcat(logs_json, ",");
+                }
+                strcat(logs_json, "\"");
+
+                for (size_t i = 0; i < line_len && strlen(logs_json) < 16300; i++) {
+                    if (start[i] == '"') {
+                        strcat(logs_json, "\\\"");
+                    } else if (start[i] == '\\') {
+                        strcat(logs_json, "\\\\");
+                    } else if (start[i] == '\r') {
+                    } else {
+                        size_t current_len = strlen(logs_json);
+                        logs_json[current_len] = start[i];
+                        logs_json[current_len + 1] = '\0';
+                    }
+                }
+
+                strcat(logs_json, "\"");
+                line_count++;
+                first = false;
+            }
+
+            if (*p == '\n') {
+                start = p + 1;
+            }
+        }
+    }
+
+    strcat(logs_json, "]");
+
+    line_count = 0;
+    for (const char* q = logs_json + 1; *q != '\0'; q++) {
+        if (*q == '"' && (*(q - 1) == '[' || *(q - 1) == ',')) {
+            line_count++;
+        }
+    }
+
+    json_entry_t success_json[] = {
+        {"success", JSON_TYPE_BOOL, &(int){1}},
+        {"log_lines", JSON_TYPE_RAW, logs_json},
+        {"total_lines", JSON_TYPE_NUMBER, &line_count},
+    };
+
+    char* json_response = build_json_safe(JSON_ARRAY_SIZE(success_json), success_json);
+    esp_err_t result = httpd_resp_send(req, json_response, HTTPD_RESP_USE_STRLEN);
+
+    free(json_response);
+    free(logs);
+    free(logs_json);
+    return result;
 }

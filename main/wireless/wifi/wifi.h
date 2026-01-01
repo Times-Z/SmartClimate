@@ -10,8 +10,10 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 
-#include "../ble/ble.h"
-#include "../captive_portal/captive_portal.h"
+// BLE disabled - not needed for this project
+// #include "../ble/ble.h"
+// Captive portal disabled - not present
+// #include "../captive_portal/captive_portal.h"
 #include "../wireless.h"
 #include "../storage/nvs/nvs.h"
 

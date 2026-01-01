@@ -10,7 +10,7 @@
 				"idf.espIdfPath": "/opt/esp/idf",
 				"idf.toolsPath": "/opt/esp",
 				"idf.gitPath": "/usr/bin/git",
-				"idf.showWelcome" : false
+				"idf.showWelcome": false
 			},
 			"extensions": [
 				"espressif.esp-idf-extension",
@@ -25,12 +25,18 @@
 	"runArgs": [
 		"--name=smartclimate-dev",
 		"--hostname=smartclimate-dev",
-		"-v", "${env:HOME}/.ssh:/home/ubuntu/.ssh:ro",
-		"-v", "${env:HOME}/.gnupg:/home/ubuntu/.gnupg:ro",
-		"-v", "/run/udev:/run/udev",
-		"-v", "/etc/localtime:/etc/localtime:ro",
-		"-v", "/dev:/dev",
-		"--device-cgroup-rule=c 166:* rmw"
+		"-v",
+		"${env:HOME}/.ssh:/home/ubuntu/.ssh:ro",
+		"-v",
+		"${env:HOME}/.gnupg:/home/ubuntu/.gnupg:ro",
+		"-v",
+		"/run/udev:/run/udev",
+		"-v",
+		"/etc/localtime:/etc/localtime:ro",
+		"-v",
+		"/dev:/dev",
+		"--device-cgroup-rule=c 166:* rmw",
+		"--device-cgroup-rule=c 188:* rmw"
 	],
 	"remoteEnv": {
 		"CMAKE_GENERATOR": "Ninja"

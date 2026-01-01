@@ -1,118 +1,238 @@
 # SmartClimate
 
-SmartClimate is an IoT-based weather monitoring and smart device tracking system using the ESP32-C6 microcontroller with an ST7789 172×320 TFT display. This project provides real-time environmental data and smart home device status, making it an efficient tool for monitoring climate conditions and IoT devices.
+> Little weather station
 
-<img src="./.assets/01.jpg" style="display: block; margin: auto;" />
+<div align="center">
+  <br/>
 
-## Prerequisites
+[![Latest Release](https://img.shields.io/github/v/release/Times-Z/smartclimate?label=Latest%20Version&color=c56a90&style=for-the-badge&logo=star)](https://github.com/Times-Z/smartclimate/releases)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/Times-Z/smartclimate/.github/workflows/build.yml?branch=main&label=Pipeline%20Status&color=c56a90&style=for-the-badge&logo=star)](https://github.com/Times-Z/smartclimate/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
 
-Before setting up SmartClimate, ensure you have the following installed:
+  <br/>
 
-### Software Requirements
+**SmartClimate** is an IoT-based weather monitoring and smart device tracking system using the ESP32-C6 microcontroller with an ST7789 172×320 TFT display. This project provides real-time environmental data and smart home device status, making it an efficient tool for monitoring climate conditions and IoT devices.
 
-- **Python 3** + `pip`
-- **VS Code** with the following extensions:
-  - [C/C++](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools)
-  - [ESP-IDF (latest version)](https://marketplace.visualstudio.com/items?itemName=espressif.esp-idf-extension)
-- _Optional_ **Docker/docker-compose** for running the devcontainer to avoid installing esp-idf on host
+  <br/>
 
-### Hardware Requirements
+<table>
+  <tr>
+  </tr>
+</table>
 
-- **ESP32-C6** microcontroller
-- **ST7789 TFT display** (172×320 resolution)
-- Environmental sensors (optional, e.g., DHT22, BMP280, etc.)
-- Power supply (USB-C or battery)
-
-### Tested hardware
-
-[Aliexpress ESP32-C6 + TFT 1.47" screen](https://fr.aliexpress.com/item/1005008137447784.html?spm=a2g0o.order_list.order_list_main.16.35e25e5bMBmZyY&gatewayAdapt=glo2fra)
-
-### Partitions
-
-SmartClimate uses a custom partition table tailored for persistent storage, application firmware, and static assets.
-
-| Name      | Type | SubType | Offset   | Size     | Size (KB) | Description                |
-| :-------- | :--- | :------ | :------- | :------- | :-------- | :------------------------- |
-| `nvs`     | data | nvs     | 0x9000   | 0x80000  | 512 KB    | Non-volatile storage (NVS) |
-| `factory` | app  | factory | 0x90000  | 0x200000 | 2048 KB   | Main application binary    |
-| `storage` | data | spiffs  | 0x290000 | 0x170000 | 1472 KB   | SPIFFS for static assets   |
-
-## Installation
-
-1. **Clone the repository:**
-   ```sh
-   git clone https://github.com/your-repo/SmartClimate.git
-   cd SmartClimate
-   ```
-
-### If you use devcontainer :
-
-2. **Add udev rule :**
-
-   replace YOURUSER with your user name
-
-   ```sh
-   SUBSYSTEM=="tty", ATTRS{idVendor}=="303a", ATTRS{idProduct}=="1001", OWNER="YOURUSER", GROUP="dialout", MODE="0666"
-   ```
-
-### If your don't use devcontainer
-
-2. **Configure ESP-IDF:**
-
-   - Open VS Code and install the ESP-IDF extension.
-   - Follow the setup instructions to configure the ESP32-C6 environment.
-
-### Both
-
-3. **Build and flash the firmware:**
-   ```sh
-   idf.py build
-   idf.py flash
-   ```
-
-## Usage
-
-- Power on the ESP32-C6 with the TFT screen attached.
-- The device will connect to the configured Wi-Fi network and start displaying weather data and smart device statuses.
-- Use the serial monitor for debugging:
-  ```sh
-  idf.py monitor
-  ```
-
-## API documentation
-
-[SmartClimate API Swagger](./swagger.yml)
-
-## Features
-
-- [x] Embedded web server with HTTP endpoints
-- [x] Wi-Fi station (STA) mode support
-- [x] Captive portal for Wi-Fi access point (AP) mode
-- [x] NVS-based persistent storage for configuration and credentials
-- [x] Uptime tracking (seconds to days format)
-- [x] Lightweight JSON API for system status and configuration
-- [x] Graphical user interface built with LVGL
-- [x] NTP-based time synchronization
-
-## Roadmap
-
-- [ ] UI theming & styling system
-- [ ] Internationalization (i18n) support
-- [ ] Better error feedback on failed Wi-Fi connection
-- [ ] System metrics dashboard (RAM, CPU, temp)
-- [ ] Web UI with live config over HTTP
-- [ ] BLE pairing & config mode
-- [ ] WebSocket real-time updates
-- [ ] Config export/import (JSON/NVS backup)
-
-## License
-
-This project is licensed under the MIT License.
-
-## Contributions
-
-Contributions are welcome! Feel free to submit a pull request or open an issue for discussion.
+</div>
 
 ---
 
-Happy Coding! 😊
+## Table of contents
+
+- [Prerequisites](#-prerequisites)
+- [Hardware setup](#-hardware-setup)
+- [Installation](#-installation)
+- [Configuration](#-configuration)
+- [API documentation](#-api-documentation)
+- [Features](#-features)
+- [Contributing](#-contributing)
+- [License](#-license)
+
+---
+
+## Prerequisites
+
+### Software requirements
+
+#### Using devcontainer (zero setup)
+
+The project includes a **pre-configured devcontainer** with everything pre-installed:
+
+- Python 3.12
+- ESP-IDF 5.5+
+- ESP32 toolchain
+- VS Code extensions
+- Build tools
+
+**Simply clone and open:**
+
+```bash
+git clone https://github.com/Times-Z/smartclimate.git
+code smartclimate
+# Click "Reopen in Container" when prompted
+```
+
+All dependencies are automatically available inside the container \o/
+
+#### Manual setup
+
+If you prefer not to use devcontainer, install manually:
+
+| Tool        | Version | Purpose                     |
+| ----------- | ------- | --------------------------- |
+| **Python**  | 3.12+   | Build system dependency     |
+| **ESP-IDF** | 5.5+    | ESP32 development framework |
+
+Then configure ESP-IDF following the [official guide](https://docs.espressif.com/projects/esp-idf/en/v5.5.2/esp32/get-started/index.html#manual-installation)
+
+---
+
+## Hardware setup
+
+### Required components
+
+| Component           | Model   |
+| ------------------- | ------- |
+| **Microcontroller** | ESP32c6 |
+
+---
+
+## Flash memory layout
+
+The firmware uses a custom partition scheme optimized for storage and performance:
+
+| Partition | Type | SubType | Offset   | Size    | Purpose                     |
+| :-------- | :--- | :------ | :------- | :------ | :-------------------------- |
+| `nvs`     | data | nvs     | 0x9000   | 512 KB  | Configuration & credentials |
+| `factory` | app  | factory | 0x90000  | 2048 KB | Main firmware binary        |
+| `config`  | data | spiffs  | 0x290000 | 128 KB  | JSON settings files         |
+| `www`     | data | spiffs  | 0x2B0000 | 1344 KB | Web interface assets        |
+
+---
+
+## Installation
+
+### Step 1: clone the repository
+
+```bash
+git clone https://github.com/Times-Z/smartclimate.git
+cd smartclimate
+```
+
+### Step 2: set up ESP-IDF
+
+**Option A: Using VS code extension**
+
+1. Install the **ESP-IDF** extension in VS Code
+2. Follow the extension's setup wizard
+3. Select ESP-IDF v5.5+
+
+**Option B: Using devcontainer**
+
+No setup needed! The devcontainer handles everything
+
+### Step 3: Configure the project
+
+#### Method 1: JSON configuration (boot-time)
+
+Create your config file:
+
+```bash
+cp main/config/default.json main/config/config.json
+```
+
+Edit `main/config/config.json`:
+
+```json
+{
+  "wifi_ssid": "Your_WiFi_Network",
+  "wifi_password": "Your_WiFi_Password",
+  "api_key": "your_secure_api_key",
+  "ntp_server": "pool.ntp.org"
+}
+```
+
+**Note:** This file is used only on first boot. Afterward, configuration persists in NVS
+
+#### Method 2: Web UI / REST API
+
+Once the device boots:
+
+1. Connect to wifi or access the captive portal
+2. Open the web dashboard
+3. Configure settings through the UI
+4. Changes are saved automatically to NVS
+
+#### WiFi access point mode
+
+If WiFi credentials are missing or invalid:
+
+- **SSID:** `SmartClimate`
+- **Password:** `$tr0ngWifi`
+- **Portal:** Auto-opens on compatible devices (iOS/Android), otherwise go to `http://10.0.1.1`
+
+---
+
+## Build & flash
+
+### Build the firmware
+
+```bash
+idf.py build
+```
+
+### Flash to ESP32
+
+```bash
+idf.py flash
+```
+
+### Monitor serial output
+
+```bash
+idf.py monitor
+```
+
+**Note:** All of this commands can be used at the same time, eg : `idf.py build flash monitor`
+
+---
+
+## API documentation
+
+Complete API endpoints are documented in the [Swagger/OpenAPI specification](./swagger.yml)
+
+---
+
+## Features
+
+### Implemented
+
+- [x] REST API with HTTP endpoints
+- [x] WiFi Access Point (AP) mode with captive portal
+- [x] WiFi Station (STA) mode with auto-connect
+- [x] Screen display QR code to connect
+- [x] Screen display version information
+- [x] Screen display gif
+- [x] JSON configuration files
+- [x] Persistent NVS storage (credentials & settings)
+- [x] System uptime tracking
+- [x] API key authentication (X-API-Key header)
+- [x] NTP time synchronization
+- [x] Log streaming via web UI
+
+### Planned
+
+- [] Gif better display
+- [] Clock display
+- [] Wheater informations
+
+---
+
+## License
+
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details
+
+---
+
+## Support
+
+- Check the [Swagger API documentation](./swagger.yml) for endpoint details
+- Found a bug? [Open an issue](https://github.com/Times-Z/light-bar-2-api/issues)
+- Have questions? [Start a discussion](https://github.com/Times-Z/light-bar-2-api/discussions)
+
+---
+
+<div align="center">
+
+**Made with ❤️**
+
+[Star us on GitHub](https://github.com/Times-Z/light-bar-2-api) if you find this project useful!
+
+</div>

@@ -8,13 +8,13 @@
 #include "st7789.h"
 #include "storage.h"
 #include "wireless.h"
-#include "log.h"
+#include "log_hook.h"
 #include "webserver.h"
 #include "ui/global.h"
 
-static const char *TAG = "MAIN";
-const char *APP_NAME;
-const char *APP_VERSION;
+static const char* TAG = "MAIN";
+const char* APP_NAME;
+const char* APP_VERSION;
 
 void initialize_components(void) {
     ESP_LOGI(TAG, "Initializing system components...");
@@ -54,6 +54,8 @@ void initialize_components(void) {
 }
 
 void app_main(void) {
+    log_hook_init();
+
     APP_NAME = esp_app_get_description()->project_name;
     APP_VERSION = esp_app_get_description()->version;
 

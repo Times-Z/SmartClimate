@@ -43,16 +43,14 @@ main {
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
 }
 
 .dashboard {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   gap: 20px;
-  max-width: 1200px;
   width: 100%;
-  padding: 20px;
   align-items: start;
 }
 
@@ -147,5 +145,246 @@ button:active {
   }
   100% {
     transform: rotate(360deg);
+  }
+}
+
+.api-key-widget {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  background: rgba(59, 25, 63, 0.96);
+  border: 2px solid var(--border-color);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.55);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 20px 24px;
+  z-index: 1000;
+  font-size: 2rem;
+  flex-wrap: wrap;
+}
+
+.api-key-widget.hidden {
+  display: none;
+}
+
+.api-key-widget label {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.input-sm {
+  width: 640px;
+  padding: 20px;
+  font-size: 2rem;
+  margin: 0;
+}
+
+.btn-sm {
+  padding: 1.2rem 2rem;
+  font-size: 2rem;
+  min-height: 76px;
+}
+
+.icon-btn {
+  padding: 0.4rem 0.8rem;
+  min-height: auto;
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.api-key-widget #api-key-status {
+  font-size: 2rem;
+}
+
+.api-key-toggle {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  width: 48px;
+  height: 48px;
+  border-radius: 999px;
+  background-color: var(--accent-color);
+  color: #fff;
+  border: 2px solid var(--border-color);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.45);
+  display: none; /* shown when widget hidden */
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1100;
+  font-size: 1.4rem;
+}
+
+.api-key-toggle:hover {
+  background-color: var(--button-hover);
+}
+
+/* Logs Modal Styles */
+.logs-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logs-modal.hidden {
+  display: none;
+}
+
+.logs-modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: -1;
+}
+
+.logs-modal-content {
+  background-color: var(--container-bg);
+  border: 2px solid var(--border-color);
+  border-radius: 0;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  z-index: 2001;
+}
+
+.logs-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30px 40px;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.logs-modal-header h2 {
+  margin: 0;
+  font-size: 2.5rem;
+}
+
+.logs-close-btn {
+  background: none;
+  border: none;
+  font-size: 3rem;
+  cursor: pointer;
+  color: var(--text-color);
+  padding: 0;
+  min-height: auto;
+  width: auto;
+  height: auto;
+}
+
+.logs-close-btn:hover {
+  color: var(--error-color);
+  transform: scale(1.2);
+}
+
+.logs-modal-body {
+  padding: 40px;
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.logs-fetch-btn {
+  align-self: flex-start;
+}
+
+.logs-loader {
+  display: none;
+  width: 50px;
+  height: 50px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top: 4px solid var(--accent-color);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.logs-output {
+  background-color: #1a1a1a;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 30px;
+  font-family: "Courier New", monospace;
+  font-size: 1.2rem;
+  color: #00ff00;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  flex: 1;
+  overflow-y: auto;
+  line-height: 1.6;
+}
+
+.logs-toggle {
+  position: fixed;
+  top: 16px;
+  right: 76px;
+  width: 48px;
+  height: 48px;
+  border-radius: 999px;
+  background-color: var(--accent-color);
+  color: #fff;
+  border: 2px solid var(--border-color);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.45);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1100;
+  font-size: 1.4rem;
+}
+
+.logs-toggle:hover {
+  background-color: var(--button-hover);
+}
+
+@media (max-width: 480px) {
+  .api-key-widget {
+    top: auto;
+    bottom: 12px;
+    right: 12px;
+  }
+  .input-sm {
+    width: 90vw;
+  }
+  .api-key-toggle {
+    top: auto;
+    bottom: 12px;
+    right: 12px;
+    width: 44px;
+    height: 44px;
+    font-size: 1.3rem;
+  }
+  .logs-toggle {
+    top: auto;
+    bottom: 12px;
+    right: 68px;
+    width: 44px;
+    height: 44px;
+    font-size: 1.3rem;
+  }
+  .logs-modal-header h2 {
+    font-size: 1.8rem;
+  }
+  .logs-modal-body {
+    padding: 20px;
+  }
+  .logs-output {
+    font-size: 1rem;
+    padding: 20px;
   }
 }

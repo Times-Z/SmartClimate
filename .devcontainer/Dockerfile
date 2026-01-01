@@ -1,10 +1,11 @@
-ARG DOCKER_TAG=release-v5.4
+ARG DOCKER_TAG=release-v5.5
 FROM espressif/idf:${DOCKER_TAG}
 
 ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
 ENV EDITOR=nvim
 ARG USER=ubuntu
+ARG UUCP_GID=986
 ENV PATH /opt/esp/idf/components/spiffs:$PATH
 ENV ESPPORT /dev/ttyACM0
 
@@ -26,6 +27,7 @@ RUN set -xe; \
     && chown root:root /usr/bin/sudo \
     && chmod 4755 /usr/bin/sudo \
     && echo "${USER} ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/${USER} \
+    && groupadd -g ${UUCP_GID} uucp_arch && usermod -aG uucp_arch ${USER} \
     && git config --global --add safe.directory /
 
 USER ${USER}

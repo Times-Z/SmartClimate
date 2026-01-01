@@ -4,9 +4,15 @@
 #include <string.h>
 #include <esp_vfs_fat.h>
 
+#include <string.h>
+#include <sys/unistd.h>
+#include <sys/stat.h>
+#include <esp_vfs_fat.h>
+#include <sdmmc_cmd.h>
+#include <esp_flash.h>
 #include "storage.h"
 
-const char *STORAGE_TAG = "STORAGE";
+const char* STORAGE_TAG = "STORAGE";
 
 /// @brief Initialize the storage
 /// @param void
@@ -27,9 +33,9 @@ bool storage_init(void) {
 /// @brief Create directories
 /// @param path The path to create directories
 /// @return bool : true if the directories are created, false otherwise
-bool storage_create_directories(const char *path) {
+bool storage_create_directories(const char* path) {
     char temp[256];
-    char *p = NULL;
+    char* p = NULL;
     size_t len;
 
     snprintf(temp, sizeof(temp), "%s", path);
@@ -39,7 +45,7 @@ bool storage_create_directories(const char *path) {
     }
 
     if (storage_has_extension(temp)) {
-        char *last_slash = strrchr(temp, '/');
+        char* last_slash = strrchr(temp, '/');
         if (last_slash != NULL) {
             *last_slash = '\0';
         }
@@ -65,8 +71,8 @@ bool storage_create_directories(const char *path) {
 /// @brief Return if a path has an extension
 /// @param path The path to check
 /// @return bool : true if the path has an extension, false otherwise
-bool storage_has_extension(const char *path) {
-    const char *dot = strrchr(path, '.');
+bool storage_has_extension(const char* path) {
+    const char* dot = strrchr(path, '.');
     if (!dot || dot == path) return false;
     return true;
 }
@@ -75,14 +81,14 @@ bool storage_has_extension(const char *path) {
 /// @param base_path The base path (ex. SD_MOUNT_POINT).
 /// @param depth The depth level (to use recursively, start at 0).
 /// @return void
-void storage_list_tree(const char *base_path, int depth) {
-    DIR *dir = opendir(base_path);
+void storage_list_tree(const char* base_path, int depth) {
+    DIR* dir = opendir(base_path);
     if (dir == NULL) {
         ESP_LOGE(STORAGE_TAG, "Impossible to open dir %s", base_path);
         return;
     }
 
-    struct dirent *entry;
+    struct dirent* entry;
     while ((entry = readdir(dir)) != NULL) {
         if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) continue;
 

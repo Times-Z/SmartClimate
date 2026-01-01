@@ -52,7 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
       .catch((err) => {
         showOutput(
           outputSection,
-          `<p style="color: var(--error-color);">⚠️ ${err.message}</p>`,
+          `<p style="color: var(--error-color);">${err.message}</p>`,
           loader
         );
       })
@@ -111,7 +111,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const handleNtpUpdate = () => {
     const ntpDomain = ntpInput.value.trim();
     if (!ntpDomain) {
-      ntpOutput.innerHTML = `<p style="color: var(--error-color);">⚠️ Please enter an NTP server domain.</p>`;
+      ntpOutput.innerHTML = `<p style="color: var(--error-color);">Please enter an NTP server domain.</p>`;
       return;
     }
 
@@ -129,10 +129,10 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!data || data.success === false) {
           throw new Error(data.message || "Unknown error");
         }
-        ntpOutput.innerHTML = `<p style="color: #4CAF50;">✅ NTP server updated successfully to <strong>${ntpDomain}</strong></p>`;
+        ntpOutput.innerHTML = `<p style="color: #4CAF50;">NTP server updated successfully to <strong>${ntpDomain}</strong></p>`;
       })
       .catch((err) => {
-        ntpOutput.innerHTML = `<p style="color: var(--error-color);">⚠️ ${err.message}</p>`;
+        ntpOutput.innerHTML = `<p style="color: var(--error-color);">${err.message}</p>`;
       })
       .finally(() => {
         hideLoader(ntpLoader);
@@ -158,12 +158,12 @@ document.addEventListener("DOMContentLoaded", () => {
         .then((data) => {
           alert(
             data.success
-              ? `✅ Successfully connected to ${ssid}`
-              : `❌ Connection failed: ${data.message || "Unknown error"}`
+              ? `Successfully connected to ${ssid}`
+              : `Connection failed: ${data.message || "Unknown error"}`
           );
         })
         .catch((err) => {
-          alert("❌ Connection error: " + err.message);
+          alert("Connection error: " + err.message);
         })
         .finally(() => {
           enableButton(connectButton, "Connect");

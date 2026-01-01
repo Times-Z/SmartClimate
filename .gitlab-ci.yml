@@ -3,22 +3,19 @@ stages:
   - test
   - deploy
 
-build:esp32c6:
+build:esp32:
   stage: build
-  image: espressif/idf:release-v5.4
+  image: espressif/idf:release-v5.5
   variables:
     IDF_PATH: "/opt/esp/idf"
-    IDF_TOOLS_PATH: "/opt/esp"
   script:
-    - source $IDF_PATH/export.sh
-    - idf.py reconfigure
+    - . $IDF_PATH/export.sh
+    - idf.py fullclean
     - idf.py build
   cache:
-    key: esp-idf-cache
+    key: esp-idf-v5.5-cache
     paths:
-      - ~/.espressif
       - build/
-      - .idf_cache/
     policy: pull-push
   artifacts:
     paths:
@@ -26,19 +23,6 @@ build:esp32c6:
       - build/*.elf
       - build/*.map
     expire_in: 1 days
-
-# test:esp32c6:
-#   stage: test
-#   image: espressif/idf:release-v5.4
-#   variables:
-#     IDF_PATH: "/opt/esp/idf"
-#     IDF_TOOLS_PATH: "/opt/esp"
-#   script:
-#     - source $IDF_PATH/export.sh
-#     - idf.py test
-#   needs:
-#     - job: build:esp32c6
-#       artifacts: true
 
 deploy:github:
   stage: deploy
@@ -61,7 +45,7 @@ deploy:github:
       fi
       git push -f -u publicGithub HEAD:main
   needs:
-    - job: build:esp32c6
+    - job: build:esp32
       artifacts: false
   only:
     - main

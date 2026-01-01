@@ -1,18 +1,19 @@
 #include "wifi.h"
 #include "../../ui/global.h"
 #include "../captive_portal/captive_portal.h"
+#include "../config/config_loader.h"
 
 #define MAX_APs 20
-#define WIFI_RETRY_MAX 2
+#define WIFI_RETRY_MAX 10
 
-extern const char *APP_NAME;
-static const char *AP_PASSWORD = "$tr0ngWifi";
+extern const char* APP_NAME;
+static const char* AP_PASSWORD = "$tr0ngWifi";
 
-static const char *TAG = "WIFI";
+static const char* TAG = "WIFI";
 static int s_retry_num = 0;
 static wifi_ap_record_t ap_records[MAX_APs];
-esp_netif_t *ap_netif = NULL;
-esp_netif_t *sta_netif = NULL;
+esp_netif_t* ap_netif = NULL;
+esp_netif_t* sta_netif = NULL;
 bool should_save_credentials = false;
 
 static char pending_ssid[33] = {0};
@@ -21,14 +22,15 @@ static char pending_password[65] = {0};
 static esp_event_handler_instance_t instance_any_id;
 static esp_event_handler_instance_t instance_got_ip;
 
-static void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data) {
-    if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START) {
-        esp_wifi_connect();
-    } else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
+static void wifi_event_handler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data) {
+    if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
+        wifi_event_sta_disconnected_t* disconnected = (wifi_event_sta_disconnected_t*)event_data;
+        ESP_LOGW(TAG, "Wi-Fi disconnected. Reason code: %d", disconnected->reason);
+
         if (s_retry_num < WIFI_RETRY_MAX) {
             esp_wifi_connect();
             s_retry_num++;
-            ESP_LOGI(TAG, "Retrying Wi-Fi connection... (attempt %d)", s_retry_num);
+            ESP_LOGI(TAG, "Retrying Wi-Fi connection... (attempt %d/%d)", s_retry_num, WIFI_RETRY_MAX);
         } else {
             ESP_LOGW(TAG, "Failed after %d attempts, clearing creds and starting AP mode", WIFI_RETRY_MAX);
             nvs_clear_wifi_credentials();
@@ -40,7 +42,7 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t e
     } else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
         captive_portal_stop_dns_server();
 
-        const char *ip_str = wifi_get_current_ip_str();
+        const char* ip_str = wifi_get_current_ip_str();
         ESP_LOGI(TAG, "Connected successfully with IP : %s", ip_str);
 
         ui_clear_main_container();
@@ -87,8 +89,8 @@ void wifi_start_ap(void) {
     }
 
     wifi_config_t ap_config = {0};
-    strncpy((char *)ap_config.ap.ssid, APP_NAME, sizeof(ap_config.ap.ssid));
-    strncpy((char *)ap_config.ap.password, AP_PASSWORD, sizeof(ap_config.ap.password));
+    strncpy((char*)ap_config.ap.ssid, APP_NAME, sizeof(ap_config.ap.ssid));
+    strncpy((char*)ap_config.ap.password, AP_PASSWORD, sizeof(ap_config.ap.password));
     ap_config.ap.ssid_len = strlen(APP_NAME);
     ap_config.ap.channel = 1;
     ap_config.ap.authmode = WIFI_AUTH_WPA2_PSK;
@@ -121,32 +123,34 @@ void wifi_start_ap(void) {
 
     ESP_LOGI(TAG, "Static IP configured: %s", ip_to_str(&ip_info.ip));
 
-    // Screen
     ui_clear_main_container();
     ui_show_app_name_and_version();
-    ui_show_wifi_ap_qr((char *)ap_config.ap.ssid, (char *)ap_config.ap.password);
+    ui_show_wifi_ap_qr((char*)ap_config.ap.ssid, (char*)ap_config.ap.password);
 }
 
 /// @brief Start the wifi in Station mode
 /// @param char ssid
 /// @param char password
 /// @return bool true if connected, false otherwise
-bool wifi_start_sta(const char *ssid, const char *password) {
-    ui_clear_main_container();
-    ui_show_loader_spinner();
-
+bool wifi_start_sta(const char* ssid, const char* password) {
     if (!ssid || !password || strlen(ssid) == 0 || strlen(password) == 0) {
         ESP_LOGE(TAG, "Invalid ssid/password provided.");
         return false;
     }
+
+    // Stop AP DHCP and captive portal before switching to STA to avoid socket errors
+    if (ap_netif) {
+        esp_netif_dhcps_stop(ap_netif);
+    }
+    captive_portal_stop_dns_server();
 
     esp_wifi_stop();
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
     ESP_ERROR_CHECK(esp_wifi_start());
 
     wifi_config_t wifi_config = {0};
-    strncpy((char *)wifi_config.sta.ssid, ssid, sizeof(wifi_config.sta.ssid));
-    strncpy((char *)wifi_config.sta.password, password, sizeof(wifi_config.sta.password));
+    strncpy((char*)wifi_config.sta.ssid, ssid, sizeof(wifi_config.sta.ssid));
+    strncpy((char*)wifi_config.sta.password, password, sizeof(wifi_config.sta.password));
     wifi_config.sta.listen_interval = 10;
     esp_wifi_set_protocol(ESP_IF_WIFI_STA, WIFI_PROTOCOL_11B | WIFI_PROTOCOL_11G | WIFI_PROTOCOL_11N);
     esp_wifi_set_max_tx_power(16);
@@ -190,10 +194,16 @@ void wifi_init(void) {
 
     char ssid_local[33] = {0};
     char password_local[65] = {0};
+
     if (nvs_load_wifi_credentials(ssid_local, sizeof(ssid_local), password_local, sizeof(password_local))) {
+        ESP_LOGI(TAG, "Using Wi-Fi credentials from NVS");
+        wifi_start_sta(ssid_local, password_local);
+    } else if (config_load_wifi_credentials(ssid_local, sizeof(ssid_local), password_local, sizeof(password_local))) {
+        ESP_LOGI(TAG, "Using Wi-Fi credentials from config.json");
+        should_save_credentials = true;
         wifi_start_sta(ssid_local, password_local);
     } else {
-        ESP_LOGI(TAG, "No Wi-Fi credentials in NVS, starting AP mode");
+        ESP_LOGI(TAG, "No Wi-Fi credentials found, starting AP mode");
         wifi_start_ap();
     }
 }
@@ -202,7 +212,7 @@ void wifi_init(void) {
 /// @param results Pointer to store the AP scan results
 /// @param ap_count Pointer to store the number of APs found
 /// @return esp_err_t ESP_OK on success or appropriate error code
-esp_err_t wifi_scan_networks(wifi_ap_record_t **results, uint16_t *ap_count) {
+esp_err_t wifi_scan_networks(wifi_ap_record_t** results, uint16_t* ap_count) {
     wifi_scan_config_t scan_conf = {.ssid = NULL, .bssid = NULL, .channel = 0, .show_hidden = true};
 
     esp_err_t err;
@@ -229,14 +239,14 @@ esp_err_t wifi_scan_networks(wifi_ap_record_t **results, uint16_t *ap_count) {
 /// @brief return string ip for a domain name
 /// @param char domain_name
 /// @return NULL|char the ip or null if resolution fail
-const char *wifi_resolve_domain(char *domain_name) {
-    struct hostent *he = gethostbyname(domain_name);
+const char* wifi_resolve_domain(char* domain_name) {
+    struct hostent* he = gethostbyname(domain_name);
     if (he == NULL) {
         ESP_LOGE(TAG, "DNS resolution failed for %s", domain_name);
         return NULL;
     }
 
-    struct in_addr **addr_list = (struct in_addr **)he->h_addr_list;
+    struct in_addr** addr_list = (struct in_addr**)he->h_addr_list;
     if (addr_list[0] != NULL) {
         ESP_LOGI(TAG, "%s resolved to %s", domain_name, inet_ntoa(*addr_list[0]));
         return inet_ntoa(*addr_list[0]);
@@ -249,9 +259,9 @@ const char *wifi_resolve_domain(char *domain_name) {
 /// @brief Return the current ip as a string or NULL
 /// @param void
 /// @return NULL|char ip
-const char *wifi_get_current_ip_str(void) {
+const char* wifi_get_current_ip_str(void) {
     static char ip_str[INET_ADDRSTRLEN] = "0.0.0.0";
-    esp_netif_t *netifs[] = {sta_netif, ap_netif};
+    esp_netif_t* netifs[] = {sta_netif, ap_netif};
 
     for (int i = 0; i < sizeof(netifs) / sizeof(netifs[0]); ++i) {
         if (netifs[i] && esp_netif_is_netif_up(netifs[i])) {
@@ -269,9 +279,9 @@ const char *wifi_get_current_ip_str(void) {
 /// @brief return the current main dns as a string
 /// @param void
 /// @return NULL|char main dns
-const char *wifi_get_current_dns_str(void) {
+const char* wifi_get_current_dns_str(void) {
     static char dns_str[INET_ADDRSTRLEN] = "0.0.0.0";
-    esp_netif_t *netifs[] = {sta_netif, ap_netif};
+    esp_netif_t* netifs[] = {sta_netif, ap_netif};
     esp_netif_dns_info_t dns_info;
 
     for (int i = 0; i < sizeof(netifs) / sizeof(netifs[0]); ++i) {
